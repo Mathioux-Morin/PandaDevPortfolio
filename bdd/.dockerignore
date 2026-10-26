@@ -1,0 +1,3 @@
+# Seuls les scripts d'initialisation entrent dans l'image.
+*
+!init/
