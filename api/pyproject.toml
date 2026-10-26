@@ -1,0 +1,26 @@
+[project]
+name = "API_PandaDev_Portfolio"
+version = "0.1.0"
+description = "API du portfolio PandaDev : gestion des données de chaque personne."
+readme = "README.md"
+requires-python = ">=3.15"
+dependencies = [
+    "bcrypt>=5.0.0",
+    "fastapi[standard]>=0.162.0",
+    "psycopg[binary]>=3.3.6",
+    "pydantic-settings>=2.16.1",
+    "pyjwt>=2.15.1",
+    "sqlmodel>=0.0.48",
+    "uvicorn>=0.54.0",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.17.2",
+    "ty>=0.0.92",
+    "pytest>=9.1.1",
+]
