@@ -1,0 +1,15 @@
+# Nuxt site-specific rules (OS, IDE, .env and logs: see the root .gitignore)
+
+# Nuxt build output
+.nuxt
+.output
+.data
+.nitro
+.cache
+dist
+
+# Dependencies
+node_modules
+
+# TypeScript
+*.tsbuildinfo
