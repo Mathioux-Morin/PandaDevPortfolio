@@ -1,46 +1,46 @@
-# PandaDev Portfolio — API REST
+# PandaDev Portfolio — REST API
 
-API REST FastAPI du portfolio PandaDev. Elle gère les données de chaque personne présentée dans le portfolio et authentifie les personnes par login et mot de passe (token JWT).
+FastAPI REST API of the PandaDev portfolio. It manages the data of each person shown in the portfolio and authenticates people with a login and password (JWT token).
 
-## Table des matières
+## Table of contents
 
-1. [Prérequis](#prérequis)
+1. [Requirements](#requirements)
 2. [Installation](#installation)
-3. [Base de données](#base-de-données)
+3. [Database](#database)
 4. [Configuration](#configuration)
-5. [Lancement](#lancement)
-6. [Qualité du code](#qualité-du-code)
+5. [Running](#running)
+6. [Code quality](#code-quality)
 7. [Architecture](#architecture)
 8. [Endpoints](#endpoints)
-   1. [Authentification](#authentification)
-   2. [Routes protégées](#routes-protégées)
+   1. [Authentication](#authentication)
+   2. [Protected routes](#protected-routes)
 
 ---
 
-## Prérequis
+## Requirements
 
-* Python 3.15 ou supérieur
-* [uv](https://docs.astral.sh/uv/) (gestionnaire de paquets)
-* Docker (pour la base PostgreSQL, voir [`bdd/`](../bdd))
+* Python 3.15 or later
+* [uv](https://docs.astral.sh/uv/) (package manager)
+* Docker (for the PostgreSQL database, see [`db/`](../db))
 
 ---
 
 ## Installation
 
-1. Cloner le dépôt :
+1. Clone the repository:
 
     ```bash
-    git clone https://github.com/Mathioux-Morin/PandaDevPortfolio.git
+    git clone <repository_url>
     cd PandaDevPortfolio/api
     ```
 
-2. Installer les dépendances :
+2. Install the dependencies:
 
     ```bash
-    uv syncrefa
+    uv sync
     ```
 
-3. Créer et remplir le fichier d'environnement (voir [Configuration](#configuration)) :
+3. Create and fill in the environment file (see [Configuration](#configuration)):
 
     ```bash
     cp .env.example .env
@@ -48,83 +48,85 @@ API REST FastAPI du portfolio PandaDev. Elle gère les données de chaque person
 
 ---
 
-## Base de données
+## Database
 
-La base PostgreSQL 18 tourne dans un conteneur défini dans [`bdd/`](../bdd). Les scripts de [`bdd/init/`](../bdd/init) créent les tables au premier démarrage.
+The PostgreSQL 18 database runs in a container defined in [`db/`](../db). The scripts in [`db/init/`](../db/init) create the tables on first start.
 
 ```bash
-cd ../bdd
-cp .env.example .env          # renseigner POSTGRES_PASSWORD
+cd ../db
+cp .env.example .env          # fill in POSTGRES_PASSWORD
 docker compose up -d --build
-docker compose ps             # attendre l'état "healthy"
+docker compose ps             # wait for the "healthy" status
 ```
 
-> **Notes :**
+> **Notes:**
 >
-> * Si le port `5432` est déjà utilisé (autre PostgreSQL), changer `POSTGRES_PORT` dans `bdd/.env` et le port de `DATABASE_URL` dans `api/.env` (ex : `5433`).
-> * Les scripts d'initialisation ne s'exécutent que si le volume de données est vide. Pour les rejouer : `docker compose down -v` (**efface toutes les données**).
+> * If port `5432` is already in use (another PostgreSQL), change `POSTGRES_PORT` in `db/.env` and the port of `DATABASE_URL` in `api/.env` (e.g. `5433`).
+> * The init scripts only run when the data volume is empty. To run them again: `docker compose down -v` (**deletes all data**).
 
-### `utilisateurs`
+### `users`
 
-Personnes autorisées à se connecter. Il n'y a pas de création de compte via l'API : les comptes sont ajoutés directement en base.
+People allowed to log in. Accounts are not created through the API: they are added directly in the database.
 
-| Colonne        | Type          | Description                                   |
-|----------------|---------------|-----------------------------------------------|
-| `id`           | integer (PK)  | Identifiant auto-incrémenté, contenu du token |
-| `login`        | text (unique) | Identifiant de connexion                      |
-| `mot_de_passe` | text          | Hash bcrypt du mot de passe (via `pgcrypto`)  |
+| Column          | Type          | Description                                  |
+|-----------------|---------------|----------------------------------------------|
+| `id`            | integer (PK)  | Auto-incremented id, carried by the token    |
+| `login`         | text (unique) | Login                                        |
+| `password_hash` | text          | bcrypt hash of the password (via `pgcrypto`) |
 
-**Ajouter une personne :**
+**Add a user:**
 
 ```bash
-docker compose exec bdd psql -U portfolio -d portfolio
+docker compose exec db psql -U portfolio -d portfolio
 ```
 
 ```sql
-INSERT INTO utilisateurs (login, mot_de_passe)
-VALUES ('jdoe', crypt('mot de passe', gen_salt('bf', 12)));
+INSERT INTO users (login, password_hash)
+VALUES ('jdoe', crypt('password', gen_salt('bf', 12)));
 ```
 
-> **Note :** bcrypt ne prend en compte que les 72 premiers octets du mot de passe.
+> **Note:** bcrypt only uses the first 72 bytes of the password.
 
 ---
 
 ## Configuration
 
-Toutes les variables sont dans `.env` :
+All variables live in `.env`:
 
-| Variable                          | Description                                           | Exemple                                                      |
-|-----------------------------------|-------------------------------------------------------|--------------------------------------------------------------|
-| `DATABASE_URL`                    | URL de connexion PostgreSQL (format `postgresql://`)  | `postgresql://portfolio:motdepasse@localhost:5432/portfolio` |
-| `JWT_SECRET_KEY`                  | Clé secrète pour signer les tokens JWT                | `openssl rand -hex 32`                                       |
-| `JWT_ALGORITHM`                   | Algorithme de signature JWT (défaut : `HS256`)        | `HS256`                                                      |
-| `JWT_ACCESS_TOKEN_EXPIRE_MINUTES` | Durée de validité du token en minutes (défaut : `30`) | `30`                                                         |
+| Variable                          | Description                                        | Example                                                    |
+|-----------------------------------|----------------------------------------------------|------------------------------------------------------------|
+| `DATABASE_URL`                    | PostgreSQL connection URL (`postgresql://` format) | `postgresql://portfolio:password@localhost:5432/portfolio` |
+| `JWT_SECRET_KEY`                  | Secret key used to sign the JWT tokens             | `openssl rand -hex 32`                                     |
+| `JWT_ALGORITHM`                   | JWT signing algorithm (default: `HS256`)           | `HS256`                                                    |
+| `JWT_ACCESS_TOKEN_EXPIRE_MINUTES` | Token lifetime in minutes (default: `30`)          | `30`                                                       |
 
-`DATABASE_URL` reprend les valeurs de `bdd/.env` : `postgresql://POSTGRES_USER:POSTGRES_PASSWORD@localhost:POSTGRES_PORT/POSTGRES_DB`.
+`DATABASE_URL` uses the values of `db/.env`: `postgresql://POSTGRES_USER:POSTGRES_PASSWORD@localhost:POSTGRES_PORT/POSTGRES_DB`.
 
-> ⚠️ **Attention :** Ne partagez jamais votre fichier `.env`.
+> ⚠️ **Warning:** Never share your `.env` file.
 
 ---
 
-## Lancement
+## Running
 
 ```bash
-# Développement (rechargement automatique)
+# Development (auto-reload)
 uv run uvicorn my_api:app --env-file .env --reload
 
-# Production, derrière un reverse proxy servant l'API sous /api (ex : nginx)
+# Production, behind a reverse proxy serving the API under /api (e.g. nginx)
 uv run uvicorn my_api:app --env-file .env --root-path /api
 ```
 
-La documentation interactive Swagger est accessible à : `http://127.0.0.1:8000/docs`
+The interactive Swagger documentation is available at: `http://127.0.0.1:8000/docs`
+
+> **Note:** User-facing texts (Swagger description, error messages) are written in French.
 
 ---
 
-## Qualité du code
+## Code quality
 
 ```bash
 uv run ruff check     # linter
-uv run ty check       # vérification des types
+uv run ty check       # type checking
 uv run pytest         # tests
 ```
 
@@ -134,47 +136,48 @@ uv run pytest         # tests
 
 ```text
 .
-├── my_api.py                        # Point d'entrée FastAPI
-├── pyproject.toml                   # Dépendances et métadonnées du projet (uv)
-├── ruff.toml                        # Configuration du linter Ruff
-├── routers/                         # Couche routeurs (HTTP)
-│   ├── authentication.py            # Route d'authentification JWT
-│   └── schemas/                     # Modèles Pydantic des requêtes et réponses
-│       ├── token.py                 # Schéma du token
-│       └── user.py                  # Identifiants de connexion (UserLogin)
-└── service/                         # Couche métier
-    ├── auth/
-    │   └── security.py              # Vérification bcrypt, création et décodage des tokens JWT
-    ├── db/                          # Accès base de données (PostgreSQL / SQLModel)
-    │   ├── database.py              # Moteur et gestion des sessions
-    │   └── models.py                # Modèles ORM (tables SQL)
-    └── settings/                    # Chargement des variables d'environnement
-        ├── auth.py
-        └── database.py
+├── my_api.py                        # FastAPI entry point
+├── pyproject.toml                   # Project dependencies and metadata (uv)
+├── ruff.toml                        # Ruff linter configuration
+├── routers/                         # Router layer (HTTP)
+│   ├── authentication.py            # JWT authentication route
+│   └── schemas/                     # Pydantic request and response models
+│       ├── token.py                 # Token schema
+│       └── user.py                  # Login credentials (UserLogin)
+├── service/                         # Business layer
+│   ├── auth/
+│   │   └── security.py              # bcrypt check, JWT token creation and decoding
+│   ├── db/                          # Database access (PostgreSQL / SQLModel)
+│   │   ├── database.py              # Engine and session management
+│   │   └── models.py                # ORM models (SQL tables)
+│   └── settings/                    # Environment variable loading
+│       ├── auth.py
+│       └── database.py
+└── tests/                           # pytest tests (in-memory SQLite database)
 ```
 
 ---
 
 ## Endpoints
 
-### Authentification
+### Authentication
 
-Génération du token JWT requis pour accéder aux routes protégées.
+Issues the JWT token required to access protected routes.
 
-| Méthode | Chemin        | Description                                         | Code      |
-|---------|---------------|-----------------------------------------------------|-----------|
-| POST    | `/auth/token` | Génère un token à partir d'un login et mot de passe | 200 / 401 |
+| Method | Path          | Description                              | Code      |
+|--------|---------------|------------------------------------------|-----------|
+| POST   | `/auth/token` | Issues a token from a login and password | 200 / 401 |
 
-**Corps `POST /auth/token` :**
+**`POST /auth/token` body:**
 
 ```json
 {
   "login": "jdoe",
-  "password": "mot de passe"
+  "password": "password"
 }
 ```
 
-**Réponse :**
+**Response:**
 
 ```json
 {
@@ -183,22 +186,22 @@ Génération du token JWT requis pour accéder aux routes protégées.
 }
 ```
 
-Codes d'erreur : `401` (login ou mot de passe incorrect), `422` (corps invalide).
+Error codes: `401` (wrong login or password), `422` (invalid body).
 
-Le token ne contient que l'identifiant de la personne :
+The token only carries the user id:
 
-| Claim | Description                                    |
-|-------|------------------------------------------------|
-| `sub` | Identifiant de la personne (`utilisateurs.id`) |
-| `iss` | Émetteur : `pandadev-portfolio`                |
-| `iat` | Date d'émission                                |
-| `exp` | Date d'expiration                              |
+| Claim | Description                  |
+|-------|------------------------------|
+| `sub` | User id (`users.id`)         |
+| `iss` | Issuer: `pandadev-portfolio` |
+| `iat` | Issued at                    |
+| `exp` | Expiration date              |
 
 ---
 
-### Routes protégées
+### Protected routes
 
-Les routes protégées attendent l'en-tête `Authorization: Bearer <token>`. La dépendance `get_current_user_id` fournit l'identifiant de la personne connectée :
+Protected routes expect the `Authorization: Bearer <token>` header. The `get_current_user_id` dependency provides the id of the logged-in user:
 
 ```python
 from typing import Annotated
@@ -208,9 +211,9 @@ from fastapi import Depends
 from service.auth.security import get_current_user_id
 
 
-@router.get("/moi")
+@router.get("/me")
 async def read_me(user_id: Annotated[int, Depends(get_current_user_id)]) -> dict[str, int]:
     return {"id": user_id}
 ```
 
-Codes d'erreur : `401` (token absent, invalide, expiré ou d'un autre émetteur).
+Error codes: `401` (missing, invalid or expired token, or token from another issuer).
