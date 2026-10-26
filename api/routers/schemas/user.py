@@ -1,12 +1,12 @@
 # Copyright (c) 2026 MORIN Mathieu, Mathias GARAIOS
 # SPDX-License-Identifier: MIT
-"""Schémas qui définissent les données d'un utilisateur."""
+"""User data schemas."""
 
 from pydantic import BaseModel, ConfigDict, SecretStr
 
 
 class UserLogin(BaseModel):
-    """Identifiants envoyés à la route d'authentification."""
+    """Credentials sent to the authentication route."""
 
     model_config = ConfigDict(extra="forbid")
 

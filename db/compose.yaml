@@ -1,0 +1,17 @@
+name: pandadev-portfolio
+
+services:
+  db:
+    build: .
+    image: pandadev-portfolio-db:18.6
+    env_file: .env
+    ports:
+      # Only reachable from the host machine.
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      # PostgreSQL 18: the volume is mounted on /var/lib/postgresql (no longer .../data).
+      - db-data:/var/lib/postgresql
+    restart: unless-stopped
+
+volumes:
+  db-data:

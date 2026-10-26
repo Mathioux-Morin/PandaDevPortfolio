@@ -1,14 +1,15 @@
 # Copyright (c) 2026 MORIN Mathieu, Mathias GARAIOS
 # SPDX-License-Identifier: MIT
-"""Point d'entrée principal de l'API du portfolio PandaDev.
+"""Main entry point of the PandaDev portfolio API.
 
-Ce module initialise l'application FastAPI et enregistre les routeurs :
-- Authentification : génération du token JWT
+Creates the FastAPI application and registers the routers:
+- Authentication: JWT token generation
 """
 from fastapi import FastAPI
 
 from routers import authentication
 
+# Swagger description, shown to API users (in French)
 description = """
 ## Authentification
 
@@ -44,8 +45,8 @@ app = FastAPI(
         "name": "Mathias GARAIOS",
         "email": "mathias.garaios@gmail.com",
     },
-    # Derrière un reverse proxy sous le préfixe "/api" (ex : nginx), passer le préfixe
-    # au serveur : `uv run uvicorn my_api:app --env-file .env --root-path /api`.
+    # Behind a reverse proxy serving the API under "/api" (e.g. nginx), pass the prefix
+    # to the server: `uv run uvicorn my_api:app --env-file .env --root-path /api`.
     )
 
 app.include_router(authentication.router)

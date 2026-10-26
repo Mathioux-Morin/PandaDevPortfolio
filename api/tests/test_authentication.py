@@ -1,6 +1,6 @@
 # Copyright (c) 2026 MORIN Mathieu, Mathias GARAIOS
 # SPDX-License-Identifier: MIT
-"""Tests de la route POST /auth/token."""
+"""Tests of the POST /auth/token route."""
 
 import jwt
 import pytest
@@ -8,12 +8,12 @@ lazy from fastapi.testclient import TestClient
 lazy from sqlmodel import Session
 
 from service.auth.security import ISSUER
-from service.db.models import Utilisateur
+from service.db.models import User
 from tests.conftest import JWT_SECRET, PASSWORD, pgcrypto_hash
 
 
-def test_bons_identifiants_renvoient_un_token_bearer(client: TestClient, user: Utilisateur) -> None:
-    """Un login et un mot de passe corrects donnent un token."""
+def test_valid_credentials_return_a_bearer_token(client: TestClient, user: User) -> None:
+    """A correct login and password give a token."""
     response = client.post("/auth/token", json={"login": user.login, "password": PASSWORD})
 
     assert response.status_code == 200
@@ -21,8 +21,8 @@ def test_bons_identifiants_renvoient_un_token_bearer(client: TestClient, user: U
     assert response.json()["access_token"]
 
 
-def test_le_token_ne_contient_que_l_identifiant(client: TestClient, user: Utilisateur) -> None:
-    """Le token porte uniquement sub, iss, iat et exp, avec une validité de 30 minutes."""
+def test_token_only_contains_the_user_id(client: TestClient, user: User) -> None:
+    """The token only carries sub, iss, iat and exp, valid for 30 minutes."""
     response = client.post("/auth/token", json={"login": user.login, "password": PASSWORD})
 
     payload = jwt.decode(response.json()["access_token"], JWT_SECRET, algorithms=["HS256"], issuer=ISSUER)
@@ -34,15 +34,15 @@ def test_le_token_ne_contient_que_l_identifiant(client: TestClient, user: Utilis
 @pytest.mark.parametrize(
     ("login", "password"),
     [
-        pytest.param("jdoe", "mauvais mot de passe", id="mauvais-mot-de-passe"),
-        pytest.param("inconnu", PASSWORD, id="login-inconnu"),
-        pytest.param("JDOE", PASSWORD, id="login-sensible-a-la-casse"),
-        pytest.param("jdoe", "", id="mot-de-passe-vide"),
+        pytest.param("jdoe", "wrong password", id="wrong-password"),
+        pytest.param("unknown", PASSWORD, id="unknown-login"),
+        pytest.param("JDOE", PASSWORD, id="case-sensitive-login"),
+        pytest.param("jdoe", "", id="empty-password"),
     ],
 )
 @pytest.mark.usefixtures("user")
-def test_identifiants_invalides_renvoient_401(client: TestClient, login: str, password: str) -> None:
-    """Toute erreur d'identifiants donne 401."""
+def test_invalid_credentials_return_401(client: TestClient, login: str, password: str) -> None:
+    """Any credential error gives 401."""
     response = client.post("/auth/token", json={"login": login, "password": password})
 
     assert response.status_code == 401
@@ -50,47 +50,47 @@ def test_identifiants_invalides_renvoient_401(client: TestClient, login: str, pa
 
 
 @pytest.mark.usefixtures("user")
-def test_login_inconnu_et_mauvais_mot_de_passe_sont_indiscernables(client: TestClient) -> None:
-    """La réponse ne révèle pas si le login existe."""
-    unknown_login = client.post("/auth/token", json={"login": "inconnu", "password": PASSWORD})
-    wrong_password = client.post("/auth/token", json={"login": "jdoe", "password": "faux"})
+def test_unknown_login_and_wrong_password_are_indistinguishable(client: TestClient) -> None:
+    """The response does not reveal whether the login exists."""
+    unknown_login = client.post("/auth/token", json={"login": "unknown", "password": PASSWORD})
+    wrong_password = client.post("/auth/token", json={"login": "jdoe", "password": "wrong"})
 
     assert unknown_login.json() == wrong_password.json()
 
 
-def test_mot_de_passe_de_plus_de_72_octets_tronque_comme_pgcrypto(client: TestClient, session: Session) -> None:
-    """Comme pgcrypto, seuls les 72 premiers octets comptent, sans erreur pour un mot de passe plus long."""
-    long_password = "é" * 50  # 100 octets en UTF-8
-    session.add(Utilisateur(login="long", mot_de_passe=pgcrypto_hash(long_password)))
+def test_password_longer_than_72_bytes_is_truncated_like_pgcrypto(client: TestClient, session: Session) -> None:
+    """Like pgcrypto, only the first 72 bytes count, with no error for a longer password."""
+    long_password = "é" * 50  # 100 bytes in UTF-8
+    session.add(User(login="long", password_hash=pgcrypto_hash(long_password)))
     session.commit()
 
-    full = client.post("/auth/token", json={"login": "long", "password": long_password})
-    same_first_72_bytes = client.post("/auth/token", json={"login": "long", "password": "é" * 36 + "suite"})
+    full_password = client.post("/auth/token", json={"login": "long", "password": long_password})
+    same_first_72_bytes = client.post("/auth/token", json={"login": "long", "password": "é" * 36 + "suffix"})
 
-    assert full.status_code == 200
+    assert full_password.status_code == 200
     assert same_first_72_bytes.status_code == 200
 
 
 @pytest.mark.parametrize(
     "body",
     [
-        pytest.param({"id": "jdoe", "displayname": "John Doe", "authorization": "admin"}, id="ancien-format"),
-        pytest.param({"login": "jdoe"}, id="mot-de-passe-manquant"),
-        pytest.param({"password": PASSWORD}, id="login-manquant"),
-        pytest.param({"login": "jdoe", "password": PASSWORD, "authorization": "admin"}, id="champ-en-trop"),
+        pytest.param({"id": "jdoe", "displayname": "John Doe", "authorization": "admin"}, id="old-format"),
+        pytest.param({"login": "jdoe"}, id="missing-password"),
+        pytest.param({"password": PASSWORD}, id="missing-login"),
+        pytest.param({"login": "jdoe", "password": PASSWORD, "authorization": "admin"}, id="extra-field"),
     ],
 )
 @pytest.mark.usefixtures("user")
-def test_corps_invalide_renvoie_422(client: TestClient, body: dict[str, str]) -> None:
-    """Un corps incomplet ou avec des champs inconnus est refusé."""
+def test_invalid_body_returns_422(client: TestClient, body: dict[str, str]) -> None:
+    """An incomplete body or one with unknown fields is rejected."""
     response = client.post("/auth/token", json=body)
 
     assert response.status_code == 422
 
 
 @pytest.mark.usefixtures("user")
-def test_le_mot_de_passe_n_apparait_pas_dans_l_erreur_de_validation(client: TestClient) -> None:
-    """Le mot de passe (SecretStr) n'est jamais renvoyé dans les erreurs 422."""
+def test_password_is_not_echoed_in_validation_errors(client: TestClient) -> None:
+    """The password (SecretStr) is never returned in 422 errors."""
     response = client.post("/auth/token", json={"login": "jdoe", "password": PASSWORD, "extra": "x"})
 
     assert PASSWORD not in response.text

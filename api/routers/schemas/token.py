@@ -1,12 +1,12 @@
 # Copyright (c) 2026 MORIN Mathieu, Mathias GARAIOS
 # SPDX-License-Identifier: MIT
-"""Schema de donnée pour les tokens d'authentification."""
+"""Authentication token schema."""
 
 from pydantic import BaseModel
 
 
 class Token(BaseModel):
-    """Model pour les tokens d'authentification."""
+    """Access token returned after a successful login."""
 
     access_token: str
     token_type: str = "bearer"  # noqa: S105

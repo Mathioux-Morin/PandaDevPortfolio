@@ -1,6 +1,6 @@
 # Copyright (c) 2026 MORIN Mathieu, Mathias GARAIOS
 # SPDX-License-Identifier: MIT
-"""Module de sécurité pour la gestion des tokens JWT et de l'authentification."""
+"""JWT token management and authentication."""
 
 import logging
 from datetime import UTC, datetime, timedelta
@@ -13,70 +13,70 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jwt.exceptions import InvalidTokenError
 from sqlmodel import Session, select
 
-from service.db.models import Utilisateur
+from service.db.models import User
 from service.settings.auth import get_jwt_settings
 
 logger = logging.getLogger(__name__)
 
 ISSUER = "pandadev-portfolio"
 
-# bcrypt ne prend en compte que les 72 premiers octets du mot de passe. pgcrypto tronque
-# silencieusement, alors que la librairie Python lève une erreur : on tronque pareil.
+# bcrypt only uses the first 72 bytes of the password. pgcrypto truncates silently,
+# whereas the Python library raises an error: truncate the same way.
 BCRYPT_MAX_BYTES = 72
 
-# Hash vérifié quand le login n'existe pas, pour que le temps de réponse
-# ne révèle pas si un compte existe.
+# Hash checked when the login does not exist, so the response time
+# does not reveal whether an account exists.
 _DUMMY_HASH = bcrypt.hashpw(b"", bcrypt.gensalt())
 
 
-def authenticate_user(session: Session, login: str, password: str) -> Utilisateur | None:
-    """Vérifie le login et le mot de passe d'une personne.
+def authenticate_user(session: Session, login: str, password: str) -> User | None:
+    """Check a user's login and password.
 
     Args:
-        session (Session): La session de base de données.
-        login (str): Le login saisi.
-        password (str): Le mot de passe saisi, en clair.
+        session (Session): The database session.
+        login (str): The login entered.
+        password (str): The password entered, in plain text.
 
     Returns:
-        Utilisateur | None: La personne si les identifiants sont corrects, sinon None.
+        User | None: The user if the credentials are correct, otherwise None.
     """
-    user = session.exec(select(Utilisateur).where(Utilisateur.login == login)).first()
-    hashed = user.mot_de_passe.encode() if user else _DUMMY_HASH
-    password_ok = bcrypt.checkpw(password.encode()[:BCRYPT_MAX_BYTES], hashed)
-    return user if user and password_ok else None
+    user = session.exec(select(User).where(User.login == login)).first()
+    password_hash = user.password_hash.encode() if user else _DUMMY_HASH
+    is_password_valid = bcrypt.checkpw(password.encode()[:BCRYPT_MAX_BYTES], password_hash)
+    return user if user and is_password_valid else None
 
 
 def create_token(sub: str) -> str:
-    """Crée un token JWT pour une personne.
+    """Create a JWT token for a user.
 
     Args:
-        sub (str): Identifiant de la personne (subject du token).
+        sub (str): User id (token subject).
 
     Returns:
-        str: Le token encodé
+        str: The encoded token.
     """
     settings = get_jwt_settings()
     now = datetime.now(UTC)
-    to_encode: dict[str, object] = {
+    claims: dict[str, object] = {
         "sub": sub,
         "iss": ISSUER,
         "iat": now,
         "exp": now + timedelta(minutes=settings.access_token_expire_minutes),
     }
-    return jwt.encode(to_encode, settings.secret_key, algorithm=settings.algorithm)
+    return jwt.encode(claims, settings.secret_key, algorithm=settings.algorithm)
 
 
 def decode_token(token: str) -> int:
-    """Décode un token JWT et retourne l'identifiant de la personne.
+    """Decode a JWT token and return the user id.
 
     Args:
-        token (str): Le token JWT à décoder.
+        token (str): The JWT token to decode.
 
     Returns:
-        int: L'identifiant de la personne (`sub`).
+        int: The user id (`sub`).
 
     Raises:
-        HTTPException: Si le token est invalide, expiré, d'un autre émetteur ou sans `sub` valide.
+        HTTPException: If the token is invalid, expired, from another issuer or without a valid `sub`.
     """
     settings = get_jwt_settings()
     try:
@@ -88,8 +88,8 @@ def decode_token(token: str) -> int:
             options={"require": ["exp", "iss", "sub"]},
         )
         return int(payload["sub"])
-    except (InvalidTokenError, ValueError) as e:
-        logger.info("Token JWT refusé : %s", e)
+    except (InvalidTokenError, ValueError) as error:
+        logger.info("JWT token rejected: %s", error)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail={
@@ -100,24 +100,24 @@ def decode_token(token: str) -> int:
         ) from None
 
 
-# Refuse en 401 les requêtes sans en-tête `Authorization: Bearer <token>`.
+# Rejects with 401 the requests without an `Authorization: Bearer <token>` header.
 bearer_scheme = HTTPBearer()
 
 
 async def get_current_user_id(
     credentials: Annotated[HTTPAuthorizationCredentials, Depends(bearer_scheme)],
 ) -> int:
-    """Récupère l'identifiant de la personne connectée à partir du token JWT.
+    """Return the id of the logged-in user from the JWT token.
 
-    À utiliser comme dépendance des routes protégées.
+    To be used as a dependency of protected routes.
 
     Args:
-        credentials (HTTPAuthorizationCredentials): Les credentials extraits de la requête.
+        credentials (HTTPAuthorizationCredentials): The credentials extracted from the request.
 
     Returns:
-        int: L'identifiant de la personne connectée.
+        int: The id of the logged-in user.
 
     Raises:
-        HTTPException: 401 si le token est absent, invalide ou expiré.
+        HTTPException: 401 if the token is missing, invalid or expired.
     """
     return decode_token(credentials.credentials)

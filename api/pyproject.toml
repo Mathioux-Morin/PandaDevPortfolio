@@ -1,7 +1,7 @@
 [project]
 name = "API_PandaDev_Portfolio"
 version = "0.1.0"
-description = "API du portfolio PandaDev : gestion des données de chaque personne."
+description = "PandaDev portfolio API: manages the data of each person."
 readme = "README.md"
 requires-python = ">=3.15"
 dependencies = [

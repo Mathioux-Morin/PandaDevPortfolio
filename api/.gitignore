@@ -1,4 +1,4 @@
-# Règles propres à l'API Python (OS, IDE, .env et logs : voir le .gitignore racine)
+# Python API-specific rules (OS, IDE, .env and logs: see the root .gitignore)
 
 .ruff_cache
 __pycache__

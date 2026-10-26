@@ -1,0 +1,10 @@
+# PostgreSQL-specific rules (OS, IDE, .env and logs: see the root .gitignore)
+
+# Backups
+*.dump
+*.sql.bak
+
+# Temporary dev data
+pgdata/
+data/*
+!data/.gitkeep

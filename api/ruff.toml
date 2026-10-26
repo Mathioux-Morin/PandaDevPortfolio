@@ -2,13 +2,13 @@ line-length = 120
 target-version = "py315"
 
 [lint]
-# Liste des règles
-# Par défaut, Ruff active les règles Flake8 E et F
+# Rule list
+# By default, Ruff enables the Flake8 E and F rules
 # Pyflakes - F, pycodestyle - E, W
 # flake8-builtins - A
 # flake8-quotes - Q
-# flake8-comprehensions- C4
-# flake8-datetimeZ
+# flake8-comprehensions - C4
+# flake8-datetimez - DTZ
 # Pylint - PLC, PLE, PLW
 # isort - I
 # select = ['E', 'F', 'Q', 'W', 'A', 'C4', 'DTZ', 'PLC', 'PLE', 'PLW', 'I']
@@ -16,9 +16,9 @@ select = ["ALL"]
 
 [lint.per-file-ignores]
 "tests/**" = [
-    "S101",     # assert est la base de pytest
-    "PLR2004",  # valeurs attendues écrites en clair dans les tests
-    "S105",     # mots de passe et clés factices des fixtures
+    "S101",     # assert is the core of pytest
+    "PLR2004",  # expected values written out in tests
+    "S105",     # fake passwords and keys in fixtures
 ]
 
 [lint.pydocstyle]

@@ -1,13 +1,13 @@
 # Copyright (c) 2026 MORIN Mathieu, Mathias GARAIOS
 # SPDX-License-Identifier: MIT
-"""Configuration de la base de données PostgreSQL."""
+"""PostgreSQL database settings."""
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 lazy from pydantic import PostgresDsn
 
 
 class DatabaseSettings(BaseSettings):
-    """Paramètres de connexion à la base de données."""
+    """Database connection settings."""
 
     model_config = SettingsConfigDict(env_prefix="DATABASE_")
 
@@ -15,5 +15,5 @@ class DatabaseSettings(BaseSettings):
 
 
 def get_database_settings() -> DatabaseSettings:
-    """Récupère les paramètres de la base de données à partir des variables d'environnement."""
+    """Read the database settings from the environment variables."""
     return DatabaseSettings()

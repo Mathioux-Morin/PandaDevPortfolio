@@ -1,12 +1,12 @@
 # Copyright (c) 2026 MORIN Mathieu, Mathias GARAIOS
 # SPDX-License-Identifier: MIT
-"""Configuration JWT."""
+"""JWT settings."""
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class JwtSettings(BaseSettings):
-    """Paramètres pour la gestion des tokens JWT."""
+    """JWT token settings."""
 
     model_config = SettingsConfigDict(env_prefix="JWT_")
 
@@ -16,5 +16,5 @@ class JwtSettings(BaseSettings):
 
 
 def get_jwt_settings() -> JwtSettings:
-    """Récupère les paramètres JWT à partir des variables d'environnement."""
+    """Read the JWT settings from the environment variables."""
     return JwtSettings()
