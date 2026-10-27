@@ -49,7 +49,10 @@ Installation, configuration and endpoint details are in [`api/README.md`](api/RE
 
 ## Conventions
 
-Code, file names, comments and documentation are in English. Texts shown to users (website labels, API error messages, Swagger description) are in French.
+Code, file names, comments and documentation are in English.
+
+* **Website**: texts are translated with `@nuxtjs/i18n`, in [`web/i18n/locales/`](web/i18n/locales) (`fr.json`, `en.json`). French is the default locale (`/login`), other locales get a URL prefix (`/en/login`). Never write a user-facing text directly in a component: add a key to every locale file.
+* **API**: texts shown in Swagger and API error messages are in French. The website does not display them as is: the Nuxt server returns an error code (e.g. `invalid_credentials`) that the page translates.
 
 ## License
 
