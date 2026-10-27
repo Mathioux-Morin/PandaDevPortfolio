@@ -56,4 +56,4 @@ Code, file names, comments and documentation are in English.
 
 ## License
 
-[MIT](LICENSE) © 2026 MORIN Mathieu, Mathias GARAIOS
+[MIT](LICENSE) © 2026 Mathieu MORIN, Mathias GARAIOS
