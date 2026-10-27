@@ -65,6 +65,6 @@ const items = computed<NavigationMenuItem[]>(() => [
   ...(isAuthenticated.value ? [{ label: t('header.myArea'), icon: 'i-lucide-user-pen', to: localePath('/admin') }] : [])
 ])
 
-// Links and icons turn primary on hover (main menu and mobile menu)
-const LINK_UI = { link: 'hover:text-primary', linkLeadingIcon: 'group-hover:text-primary' }
+// Links and icons take the accent text color on hover (main menu and mobile menu)
+const LINK_UI = { link: 'hover:text-accent-11', linkLeadingIcon: 'group-hover:text-accent-11' }
 </script>
