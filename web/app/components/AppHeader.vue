@@ -12,6 +12,10 @@
     toggle-side="left"
     :menu="{ side: 'left' }"
     :toggle="{ color: 'primary', variant: 'subtle' }"
+    :ui="{
+      root: `top-4 mx-auto w-[calc(100%-2rem)] max-w-6xl rounded-full border border-gray-6 bg-gray-1 shadow-md`,
+      header: `px-4 sm:px-6`
+    }"
   >
     <UNavigationMenu
       :items="items"
@@ -62,9 +66,10 @@ const { isAuthenticated, logout } = useAuth()
 
 const items = computed<NavigationMenuItem[]>(() => [
   { label: t('header.portfolio'), icon: 'i-lucide-house', to: localePath('/') },
+  { label: t('header.projects'), icon: 'i-lucide-folder', to: localePath('/projects') },
   ...(isAuthenticated.value ? [{ label: t('header.myArea'), icon: 'i-lucide-user-pen', to: localePath('/admin') }] : [])
 ])
 
 // Links and icons take the accent text color on hover (main menu and mobile menu)
-const LINK_UI = { link: 'hover:text-accent-11', linkLeadingIcon: 'group-hover:text-accent-11' }
+const LINK_UI = { link: ' rounded-lg bg-gray-1 hover:bg-accent-3 hover:text-accent-12', linkLeadingIcon: 'group-hover:text-accent-12' }
 </script>

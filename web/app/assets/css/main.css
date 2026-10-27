@@ -9,18 +9,67 @@
   (low / high contrast). a1-a12: same steps with transparency, to blend on any surface.
 */
 @theme inline {
+
+  /* Accent colors */
+
+  /* Background */
+
   --color-accent-1: var(--red-1);
   --color-accent-2: var(--red-2);
+
+  /* Interactive Components */
+
   --color-accent-3: var(--red-3);
   --color-accent-4: var(--red-4);
   --color-accent-5: var(--red-5);
+
+  /* Borders and Separators */
+
   --color-accent-6: var(--red-6);
   --color-accent-7: var(--red-7);
   --color-accent-8: var(--red-8);
+
+  /* Solid Colors */
+
   --color-accent-9: var(--red-9);
   --color-accent-10: var(--red-10);
+
+  /* Accessible Text */
+
   --color-accent-11: var(--red-11);
   --color-accent-12: var(--red-12);
+
+  /* 'Gray' colors */
+
+  /* Background */
+
+  --color-gray-1: var(--gray-1);
+  --color-gray-2: var(--gray-2);
+
+  /* Interactive Components */
+
+  --color-gray-3: var(--gray-3);
+  --color-gray-4: var(--gray-4);
+  --color-gray-5: var(--gray-5);
+
+  /* Borders and Separators */
+
+  --color-gray-6: var(--gray-6);
+  --color-gray-7: var(--gray-7);
+  --color-gray-8: var(--gray-8);
+
+  /* Solid Colors */
+
+  --color-gray-9: var(--gray-9);
+  --color-gray-10: var(--gray-10);
+
+  /* Accessible Text */
+
+  --color-gray-11: var(--gray-11);
+  --color-gray-12: var(--gray-12);
+
+  /* Alphas Colors */
+
   --color-accent-a1: var(--red-a1);
   --color-accent-a2: var(--red-a2);
   --color-accent-a3: var(--red-a3);
@@ -33,20 +82,7 @@
   --color-accent-a10: var(--red-a10);
   --color-accent-a11: var(--red-a11);
   --color-accent-a12: var(--red-a12);
-  --color-accent-contrast: var(--red-contrast);
-
-  --color-gray-1: var(--gray-1);
-  --color-gray-2: var(--gray-2);
-  --color-gray-3: var(--gray-3);
-  --color-gray-4: var(--gray-4);
-  --color-gray-5: var(--gray-5);
-  --color-gray-6: var(--gray-6);
-  --color-gray-7: var(--gray-7);
-  --color-gray-8: var(--gray-8);
-  --color-gray-9: var(--gray-9);
-  --color-gray-10: var(--gray-10);
-  --color-gray-11: var(--gray-11);
-  --color-gray-12: var(--gray-12);
+  
   --color-gray-a1: var(--gray-a1);
   --color-gray-a2: var(--gray-a2);
   --color-gray-a3: var(--gray-a3);
@@ -59,7 +95,8 @@
   --color-gray-a10: var(--gray-a10);
   --color-gray-a11: var(--gray-a11);
   --color-gray-a12: var(--gray-a12);
-  --color-gray-contrast: var(--gray-contrast);
+
+
 }
 
 /*

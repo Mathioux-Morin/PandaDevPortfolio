@@ -3,6 +3,7 @@
     "mainNavigation": "Main navigation",
     "mobileNavigation": "Mobile navigation",
     "portfolio": "Portfolio",
+    "projects": "Projects",
     "myArea": "My area",
     "login": "Log in",
     "logout": "Log out",
@@ -12,7 +13,10 @@
     "unknown": "Unknown user"
   },
   "home": {
-    "description": "Projects and skills of the PandaDev team."
+    "description": "Portfolios of the PandaDev team."
+  },
+  "projects": {
+    "description": "Projects of the PandaDev team."
   },
   "login": {
     "title": "Log in",
