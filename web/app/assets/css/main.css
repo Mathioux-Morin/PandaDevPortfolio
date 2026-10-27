@@ -8,6 +8,7 @@
   6-8 borders (subtle / normal / hover), 9-10 solid fills (normal / hover), 11-12 text
   (low / high contrast). a1-a12: same steps with transparency, to blend on any surface.
 */
+
 @theme inline {
 
   /* Accent colors */
@@ -82,7 +83,7 @@
   --color-accent-a10: var(--red-a10);
   --color-accent-a11: var(--red-a11);
   --color-accent-a12: var(--red-a12);
-  
+
   --color-gray-a1: var(--gray-a1);
   --color-gray-a2: var(--gray-a2);
   --color-gray-a3: var(--gray-a3);
