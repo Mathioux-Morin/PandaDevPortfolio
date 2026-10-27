@@ -7,6 +7,7 @@
 
 export const useAuth = () => {
   const { user, loggedIn, fetch } = useUserSession()
+  const localePath = useLocalePath()
 
   const isAuthenticated = computed(() => loggedIn.value)
 
@@ -14,7 +15,7 @@ export const useAuth = () => {
   async function logout() {
     await $fetch('/api/auth/logout', { method: 'POST' })
     await fetch()
-    await navigateTo('/')
+    await navigateTo(localePath('/'))
   }
 
   return {

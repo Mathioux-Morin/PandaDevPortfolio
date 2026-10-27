@@ -1,0 +1,47 @@
+{
+  "header": {
+    "mainNavigation": "Main navigation",
+    "mobileNavigation": "Mobile navigation",
+    "portfolio": "Portfolio",
+    "myArea": "My area",
+    "login": "Log in",
+    "logout": "Log out",
+    "switchLanguage": "Change language"
+  },
+  "user": {
+    "unknown": "Unknown user"
+  },
+  "home": {
+    "description": "Projects and skills of the PandaDev team."
+  },
+  "login": {
+    "title": "Log in",
+    "description": "Access your PandaDev area",
+    "submit": "Log in",
+    "failed": "Login failed",
+    "fields": {
+      "login": "Login",
+      "loginPlaceholder": "Your login",
+      "password": "Password",
+      "passwordPlaceholder": "Your password"
+    },
+    "validation": {
+      "loginRequired": "Login is required",
+      "passwordRequired": "Password is required"
+    },
+    "errors": {
+      "invalid_credentials": "Wrong login or password",
+      "api_unavailable": "API unavailable, please try again later",
+      "unknown": "An unexpected error occurred"
+    }
+  },
+  "admin": {
+    "title": "My area",
+    "loggedInAs": "Logged in as {login}.",
+    "comingSoon": "Editing your data will come here."
+  },
+  "confirmModal": {
+    "cancel": "Cancel",
+    "confirm": "Confirm"
+  }
+}

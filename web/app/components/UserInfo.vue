@@ -13,8 +13,9 @@
 </template>
 
 <script lang="ts" setup>
+const { t } = useI18n()
 const { user } = useAuth()
 
 // Fallback while the session does not hold a user yet
-const login = computed(() => user.value?.login ?? 'Utilisateur inconnu')
+const login = computed(() => user.value?.login ?? t('user.unknown'))
 </script>

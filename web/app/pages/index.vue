@@ -5,7 +5,11 @@
   <UContainer>
     <UPageHero
       title="PandaDev Portfolio"
-      description="Les projets et compétences de l'équipe PandaDev."
+      :description="t('home.description')"
     />
   </UContainer>
 </template>
+
+<script setup lang="ts">
+const { t } = useI18n()
+</script>

@@ -1,0 +1,47 @@
+{
+  "header": {
+    "mainNavigation": "Navigation principale",
+    "mobileNavigation": "Navigation mobile",
+    "portfolio": "Portfolio",
+    "myArea": "Mon espace",
+    "login": "Connexion",
+    "logout": "Se déconnecter",
+    "switchLanguage": "Changer de langue"
+  },
+  "user": {
+    "unknown": "Utilisateur inconnu"
+  },
+  "home": {
+    "description": "Les projets et compétences de l'équipe PandaDev."
+  },
+  "login": {
+    "title": "Connexion",
+    "description": "Accédez à votre espace PandaDev",
+    "submit": "Se connecter",
+    "failed": "Connexion impossible",
+    "fields": {
+      "login": "Login",
+      "loginPlaceholder": "Votre login",
+      "password": "Mot de passe",
+      "passwordPlaceholder": "Votre mot de passe"
+    },
+    "validation": {
+      "loginRequired": "Le login est requis",
+      "passwordRequired": "Le mot de passe est requis"
+    },
+    "errors": {
+      "invalid_credentials": "Login ou mot de passe incorrect",
+      "api_unavailable": "API indisponible, réessayez plus tard",
+      "unknown": "Une erreur inattendue est survenue"
+    }
+  },
+  "admin": {
+    "title": "Mon espace",
+    "loggedInAs": "Connecté en tant que {login}.",
+    "comingSoon": "L'édition de vos données arrivera ici."
+  },
+  "confirmModal": {
+    "cancel": "Annuler",
+    "confirm": "Confirmer"
+  }
+}

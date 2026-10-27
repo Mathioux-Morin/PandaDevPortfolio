@@ -2,6 +2,7 @@ export default defineNuxtConfig({
   modules: [
     '@nuxt/ui',
     '@nuxt/eslint',
+    '@nuxtjs/i18n',
     'nuxt-auth-utils'
   ],
 
@@ -12,9 +13,7 @@ export default defineNuxtConfig({
   app: {
     head: {
       title: 'PandaDev Portfolio',
-      htmlAttrs: {
-        lang: 'fr'
-      },
+      // <html lang> follows the active locale: set in app.vue
       meta: [
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' }
@@ -86,6 +85,22 @@ export default defineNuxtConfig({
         commaDangle: 'never',
         braceStyle: '1tbs'
       }
+    }
+  },
+
+  // French by default, without URL prefix; other locales get a prefix (e.g. /en/login).
+  // Messages live in i18n/locales/, only the active locale is loaded.
+  i18n: {
+    defaultLocale: 'fr',
+    locales: [
+      { code: 'fr', language: 'fr-FR', name: 'Français', file: 'fr.json' },
+      { code: 'en', language: 'en-US', name: 'English', file: 'en.json' }
+    ],
+    // First visit: redirect to the browser language, then remember the choice in a cookie
+    detectBrowserLanguage: {
+      useCookie: true,
+      cookieKey: 'i18n_redirected',
+      redirectOn: 'root'
     }
   }
 })

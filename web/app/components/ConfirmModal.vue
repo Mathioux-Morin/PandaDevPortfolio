@@ -3,9 +3,9 @@
   Props:
     title        — modal title (e.g. 'Confirmer la suppression')
     description  — question asked (optional, e.g. « Supprimer ce projet ? »)
-    confirmLabel — label of the confirm button; default: 'Confirmer'
+    confirmLabel — label of the confirm button; default: translated "confirm"
     color        — color of the confirm button: NuxtUiColor, default 'error' (risky action)
-  v-model:open — modal open or closed; "Annuler", Escape or a click outside close it
+  v-model:open — modal open or closed; "cancel", Escape or a click outside close it
   Emits: confirm when the confirm button is clicked, then the modal closes
 -->
 <template>
@@ -17,13 +17,13 @@
   >
     <template #footer>
       <UButton
-        label="Annuler"
+        :label="t('confirmModal.cancel')"
         color="neutral"
         variant="outline"
         @click="isOpen = false"
       />
       <UButton
-        :label="confirmLabel"
+        :label="confirmLabel ?? t('confirmModal.confirm')"
         :color="color"
         @click="confirm"
       />
@@ -32,7 +32,9 @@
 </template>
 
 <script lang="ts" setup>
-// Props described in the header; defaults: no description, red "Confirmer" button
+const { t } = useI18n()
+
+// Props described in the header; defaults: no description, red translated "confirm" button
 withDefaults(defineProps<{
   title: string
   description?: string
@@ -40,7 +42,7 @@ withDefaults(defineProps<{
   color?: NuxtUiColor
 }>(), {
   description: undefined,
-  confirmLabel: 'Confirmer',
+  confirmLabel: undefined,
   color: 'error'
 })
 

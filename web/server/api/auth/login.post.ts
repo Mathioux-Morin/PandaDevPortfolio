@@ -23,11 +23,11 @@ export default defineEventHandler(async (event) => {
       body: { login, password }
     })
   } catch (error) {
-    // Error messages are shown to the user: they stay in French
+    // `data.code` is translated by the login page (i18n/locales/*.json → login.errors)
     if ((error as { statusCode?: number }).statusCode === 401) {
-      throw createError({ statusCode: 401, statusMessage: 'Login ou mot de passe incorrect' })
+      throw createError({ statusCode: 401, statusMessage: 'Invalid credentials', data: { code: 'invalid_credentials' } })
     }
-    throw createError({ statusCode: 502, statusMessage: 'API indisponible' })
+    throw createError({ statusCode: 502, statusMessage: 'API unavailable', data: { code: 'api_unavailable' } })
   }
 
   // The JWT stays in the `secure` part of the session: it is never exposed to the browser
