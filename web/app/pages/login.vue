@@ -24,12 +24,17 @@ import type { FormSubmitEvent } from '@nuxt/ui'
 const { t, te } = useI18n()
 const localePath = useLocalePath()
 
-// Computed so that validation messages and labels follow the active locale
-const schema = computed(() => zod.object({
-  login: zod.string().min(1, t('login.validation.loginRequired')),
-  password: zod.string().min(1, t('login.validation.passwordRequired'))
-}))
+// Replaces zod's message with our translated one (a function, so it follows the active locale)
+// for the cases handled here: missing value and empty string. Any other case shows zod's message.
+const loginRequired = () => t('login.validation.loginRequired')
+const passwordRequired = () => t('login.validation.passwordRequired')
 
+const schema = zod.object({
+  login: zod.string({ error: loginRequired }).min(1, { error: loginRequired }),
+  password: zod.string({ error: passwordRequired }).min(1, { error: passwordRequired })
+})
+
+// Computed so that labels follow the active locale
 const fields = computed(() => [
   {
     name: 'login',
@@ -49,7 +54,7 @@ const fields = computed(() => [
   }
 ])
 
-type Schema = zod.output<typeof schema.value>
+type Schema = zod.output<typeof schema>
 
 const loading = ref(false)
 const toast = useToast()
