@@ -13,6 +13,7 @@
     :aria-label="t('header.switchLanguage')"
     color="neutral"
     variant="ghost"
+    class="rounded-full border-2 p-0 hover:animate-[spin_0.6s_ease-in-out_1]"
   />
 </template>
 
