@@ -12,5 +12,5 @@
 
 <script setup lang="ts">
 const { t } = useI18n()
-definePageMeta({ layout : 'mm01'})
+definePageMeta({ layout : 'mm'})
 </script>
