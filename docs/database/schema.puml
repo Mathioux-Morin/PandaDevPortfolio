@@ -1,0 +1,203 @@
+' Copyright (c) 2026 MORIN Mathieu, Mathias GARAIOS
+' SPDX-License-Identifier: MIT
+'
+' Portfolio database schema (PostgreSQL).
+' Light blue table: already created by db/init/. Other tables: proposed.
+' Field details: docs/database/data_dictionary.md (keep both files in sync).
+' Render: plantuml -tsvg docs/database/schema.puml
+
+@startuml schema
+hide circle
+hide methods
+skinparam classAttributeIconSize 0
+skinparam class {
+    BackgroundColor #EBF3FA
+    BorderColor #2E75B6
+    FontColor #1F4E79
+    AttributeFontColor #1F4E79
+    HeaderBackgroundColor #2E75B6
+    HeaderFontColor #FFFFFF
+    BackgroundColor<<existing>> #D5E8F0
+}
+' Recent PlantUML versions ignore HeaderFontColor: set it with a style instead.
+<style>
+classDiagram {
+    class {
+        header {
+            FontColor #FFFFFF
+        }
+    }
+    .existing {
+        header {
+            FontColor #1F4E79
+        }
+    }
+}
+</style>
+skinparam package {
+    BorderColor #2E75B6
+    FontColor #1F4E79
+}
+skinparam legend {
+    BackgroundColor #EBF3FA
+    BorderColor #2E75B6
+    FontColor #1F4E79
+}
+skinparam note {
+    BackgroundColor #F5F9FF
+    BorderColor #2E75B6
+    FontColor #1F4E79
+}
+skinparam ArrowColor #2E75B6
+skinparam ArrowFontColor #1F4E79
+skinparam packageStyle rectangle
+skinparam nodesep 30
+skinparam ranksep 80
+skinparam linetype ortho
+
+legend top right
+    **PK** primary key, **FK** foreign key
+    **L10n** = jsonb {"fr": "...", "en": "..."}
+    <<existing>>: table already in db/init/
+    **level**: 0-24 beginner, 25-49 intermediate, 50-74 advanced, 75-100 expert
+    Filled diamond: composition (ON DELETE CASCADE)
+    Empty diamond: aggregation (ON DELETE SET NULL)
+    Dotted line: association table of a many-to-many link
+    Details: data_dictionary.md
+endlegend
+
+package "People" #DDE8F8 {
+    entity users <<existing>> {
+        **id** : integer <<PK>>
+        --
+        login : text <<unique>>
+        password_hash : text
+    }
+
+    entity profiles {
+        **user_id** : integer <<PK, FK>>
+        --
+        slug : text <<unique>>
+        display_name : text
+        headline : L10n
+        bio : L10n
+        location : text <<nullable>>
+        avatar_id : uuid <<FK, nullable>>
+        updated_at : timestamptz
+    }
+
+    entity social_links {
+        **id** : integer <<PK>>
+        --
+        user_id : integer <<FK>>
+        kind : text  // github, gitlab, linkedin, website, email
+        url : text
+        position : integer
+    }
+
+    entity experiences {
+        **id** : integer <<PK>>
+        --
+        user_id : integer <<FK>>
+        kind : text  // work | education
+        organization : text
+        role : L10n
+        description : L10n
+        location : text <<nullable>>
+        start_on : date
+        end_on : date <<nullable>>
+    }
+
+    entity user_technologies {
+        **user_id** : integer <<PK, FK>>
+        **technology_id** : integer <<PK, FK>>
+        --
+        score : smallint  // CHECK 0..100
+        level : text <<generated>>  // from score
+        position : integer
+    }
+}
+
+package "Projects" #DDE8F8 {
+    entity projects {
+        **id** : integer <<PK>>
+        --
+        slug : text <<unique>>
+        title : L10n
+        summary : L10n
+        content : L10n <<nullable>>  // Markdown
+        cover_id : uuid <<FK, nullable>>
+        repo_url : text <<nullable>>
+        demo_url : text <<nullable>>
+        started_on : date
+        ended_on : date <<nullable>>
+        is_published : boolean
+        position : integer
+        updated_at : timestamptz
+    }
+
+    entity project_members {
+        **project_id** : integer <<PK, FK>>
+        **user_id** : integer <<PK, FK>>
+    }
+
+    entity project_media {
+        **project_id** : integer <<PK, FK>>
+        **media_id** : uuid <<PK, FK>>
+        --
+        position : integer
+    }
+
+    entity project_technologies {
+        **project_id** : integer <<PK, FK>>
+        **technology_id** : integer <<PK, FK>>
+    }
+}
+
+package "Catalog" #DDE8F8 {
+    entity technologies {
+        **id** : integer <<PK>>
+        --
+        name : text <<unique>>
+        category : text  // language | framework | database | tool | ai
+        icon : text <<nullable>>  // e.g. i-simple-icons-python
+    }
+}
+
+package "Files" #DDE8F8 {
+    entity media {
+        **id** : uuid <<PK>>
+        --
+        owner_id : integer <<FK>>
+        storage_key : text <<unique>>  // file in uploads/ or S3
+        mime_type : text
+        width : integer <<nullable>>
+        height : integer <<nullable>>
+        size_bytes : bigint
+        alt : L10n
+        created_at : timestamptz
+    }
+}
+
+' UML notation, top to bottom: People, then Files and Catalog, then Projects.
+
+' Composition: the part is deleted with its owner (ON DELETE CASCADE).
+users "1" *-- "0..1" profiles
+users "1" *-- "0..*" social_links
+users "1" *-- "0..*" experiences
+users "1" *-- "0..*" media
+
+' Aggregation: optional link, the media survives (ON DELETE SET NULL).
+profiles "0..*" o-- "0..1" media : avatar
+media "0..1" --o "0..*" projects : cover
+
+' Many-to-many associations, carried by an association table.
+users "0..*" -- "0..*" technologies
+(users, technologies) .. user_technologies
+users "1..*" -- "0..*" projects : member
+(users, projects) .. project_members
+technologies "0..*" -- "0..*" projects
+(technologies, projects) .. project_technologies
+media "0..*" -- "0..*" projects : gallery
+(media, projects) .. project_media
+@enduml
