@@ -67,6 +67,7 @@ const { isAuthenticated, logout } = useAuth()
 const items = computed<NavigationMenuItem[]>(() => [
   { label: t('header.portfolio'), icon: 'i-lucide-house', to: localePath('/') },
   { label: t('header.projects'), icon: 'i-lucide-folder', to: localePath('/projects') },
+  { label: t('header.about'), icon: 'i-lucide-info', to: localePath('/about') },
   ...(isAuthenticated.value ? [{ label: t('header.myArea'), icon: 'i-lucide-user-pen', to: localePath('/admin') }] : [])
 ])
 

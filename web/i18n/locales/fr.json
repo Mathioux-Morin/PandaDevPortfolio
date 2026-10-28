@@ -4,6 +4,7 @@
     "mobileNavigation": "Navigation mobile",
     "portfolio": "Portfolio",
     "projects": "Projets",
+    "about": "À propos",
     "myArea": "Mon espace",
     "login": "Connexion",
     "logout": "Se déconnecter",
@@ -17,6 +18,9 @@
   },
   "projects": {
     "description": "Les projets de l'équipe PandaDev."
+  },
+  "about": {
+    "description": "À propos de l'équipe PandaDev."
   },
   "login": {
     "title": "Connexion",

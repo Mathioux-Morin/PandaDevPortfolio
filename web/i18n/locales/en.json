@@ -4,6 +4,7 @@
     "mobileNavigation": "Mobile navigation",
     "portfolio": "Portfolio",
     "projects": "Projects",
+    "about": "About",
     "myArea": "My area",
     "login": "Log in",
     "logout": "Log out",
@@ -17,6 +18,9 @@
   },
   "projects": {
     "description": "Projects of the PandaDev team."
+  },
+  "about": {
+    "description": "About the PandaDev team."
   },
   "login": {
     "title": "Log in",
