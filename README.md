@@ -9,7 +9,7 @@ PandaDev portfolio: a REST API that manages the data of each person shown, a web
 | [`api/`](api)         | REST API, login and password authentication (JWT)             | Python 3.15, FastAPI, SQLModel |
 | [`web/`](web)         | Public portfolio website and private login area               | Nuxt 4, Nuxt UI, Bun           |
 | [`db/`](db)           | Database and init scripts                                     | PostgreSQL 18, Docker Compose  |
-| [`docs/`](docs)       | Project documentation, database schema                        | PlantUML                       |
+| [`docs/`](docs)       | Specifications (EN, FR), database schema and data dictionary  | Markdown, PlantUML             |
 | [`profile/`](profile) | VS Code profiles to import (Python, Nuxt, SQL, Documentation) | VS Code                        |
 
 ## Quick start
