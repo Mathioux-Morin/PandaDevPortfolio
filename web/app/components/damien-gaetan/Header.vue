@@ -1,13 +1,13 @@
 <!--
-  AppHeader — site header: title, navigation, logged-in user, login, language and color mode
+  DamienGaetanHeader — header of Damien Gaetan's portfolio: title, navigation, logged-in user, login, language and color mode
   On mobile, the navigation opens in a side panel on the left.
   The "my area" entry only shows for a logged-in user.
   No props: the logged-in user is read through useAuth()
 -->
 <template>
   <UHeader
-    title="Mathieu Morin"
-    :to="localePath('/portfolios/Mathioux-Morin')"
+    title="Damien Gaetan"
+    :to="localePath('/portfolios/damien-gaetan')"
     mode="slideover"
     toggle-side="left"
     :menu="{ side: 'left' }"
