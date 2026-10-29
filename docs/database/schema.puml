@@ -82,7 +82,12 @@ package "People" #DDE8F8 {
         headline : L10n
         bio : L10n
         location : text <<nullable>>
+        contact_email : text <<nullable>>
+        contact_phone : text <<nullable>>  // international format, e.g. +33612345678
         avatar_id : uuid <<FK, nullable>>
+        availability : text <<nullable>>  // open_to_work | internship | apprenticeship | not_available
+        now : L10n <<nullable>>  // what the person is working on
+        now_updated_at : timestamptz <<nullable>>
         updated_at : timestamptz
     }
 
@@ -90,7 +95,7 @@ package "People" #DDE8F8 {
         **id** : integer <<PK>>
         --
         user_id : integer <<FK>>
-        kind : text  // github, gitlab, linkedin, website, email
+        kind : text  // github | discord | youtube | linkedin
         url : text
         position : integer
     }
@@ -132,6 +137,7 @@ package "Projects" #DDE8F8 {
         started_on : date
         ended_on : date <<nullable>>
         is_published : boolean
+        is_featured : boolean
         position : integer
         updated_at : timestamptz
     }
@@ -139,6 +145,8 @@ package "Projects" #DDE8F8 {
     entity project_members {
         **project_id** : integer <<PK, FK>>
         **user_id** : integer <<PK, FK>>
+        --
+        role : L10n <<nullable>>  // e.g. back-end, database
     }
 
     entity project_media {

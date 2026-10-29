@@ -37,30 +37,37 @@ People allowed to log in to the private area. **Existing table.**
 
 Public profile of a user. One profile at most per user.
 
-| Field          | Type          | Constraint                             | Required | Description                                    |
-|----------------|---------------|----------------------------------------|----------|------------------------------------------------|
-| `user_id`      | `integer`     | PK, FK → `users.id`, ON DELETE CASCADE | ✅       | Owner of the profile                           |
-| `slug`         | `text`        | UNIQUE, slug format                    | ✅       | Public URL of the profile, e.g. `/people/jdoe` |
-| `display_name` | `text`        | —                                      | ✅       | Name shown on the website                      |
-| `headline`     | `L10n`        | —                                      | ✅       | Short title, e.g. "Full-stack developer"       |
-| `bio`          | `L10n`        | —                                      | ✅       | Presentation text (Markdown)                   |
-| `location`     | `text`        | —                                      | ❌       | City or region, e.g. "Lyon, France"            |
-| `avatar_id`    | `uuid`        | FK → `media.id`, ON DELETE SET NULL    | ❌       | Profile picture                                |
-| `updated_at`   | `timestamptz` | DEFAULT `now()`                        | ✅       | Last change, updated by the API                |
+| Field            | Type          | Constraint                                       | Required | Description                                                                         |
+|------------------|---------------|--------------------------------------------------|----------|-------------------------------------------------------------------------------------|
+| `user_id`        | `integer`     | PK, FK → `users.id`, ON DELETE CASCADE           | ✅       | Owner of the profile                                                                |
+| `slug`           | `text`        | UNIQUE, slug format                              | ✅       | Public URL of the portfolio, e.g. `/portfolios/jdoe`                                |
+| `display_name`   | `text`        | —                                                | ✅       | Name shown on the website                                                           |
+| `headline`       | `L10n`        | —                                                | ✅       | Short title, e.g. "Full-stack developer"                                            |
+| `bio`            | `L10n`        | —                                                | ✅       | Presentation text (Markdown)                                                        |
+| `location`       | `text`        | —                                                | ❌       | City or region, e.g. "Lyon, France"                                                 |
+| `contact_email`  | `text`        | —                                                | ❌       | Contact address shown on the portfolio, validated by the API (Pydantic `EmailStr`)  |
+| `contact_phone`  | `text`        | CHECK (`contact_phone ~ '^\+[1-9][0-9]{6,14}$'`) | ❌       | Contact phone number in international format (E.164), e.g. `+33612345678`           |
+| `avatar_id`      | `uuid`        | FK → `media.id`, ON DELETE SET NULL              | ❌       | Profile picture                                                                     |
+| `availability`   | `text`        | CHECK (enumerated)                               | ❌       | `open_to_work`, `internship`, `apprenticeship` or `not_available`, shown as a badge |
+| `now`            | `L10n`        | —                                                | ❌       | What the person is working on or learning right now ("Now" section)                 |
+| `now_updated_at` | `timestamptz` | —                                                | ❌       | Last change of `now`, set by the API, shows how fresh the section is                |
+| `updated_at`     | `timestamptz` | DEFAULT `now()`                                  | ✅       | Last change, updated by the API                                                     |
+
+> ℹ️ `contact_email` and `contact_phone` are published only when the member fills them in. The website shows them in clear text only on click, so that spam bots cannot collect them from the HTML.
 
 ---
 
 ## Table: `social_links`
 
-External links of a user (GitHub, LinkedIn…).
+External links of a user. All optional: a user can have no link at all, and one link at most per kind.
 
-| Field      | Type      | Constraint                         | Required | Description                                                         |
-|------------|-----------|------------------------------------|----------|---------------------------------------------------------------------|
-| `id`       | `integer` | PK, IDENTITY                       | ✅       | Unique identifier                                                   |
-| `user_id`  | `integer` | FK → `users.id`, ON DELETE CASCADE | ✅       | Owner of the link                                                   |
-| `kind`     | `text`    | CHECK (enumerated)                 | ✅       | `github`, `gitlab`, `linkedin`, `website`, `email` (picks the icon) |
-| `url`      | `text`    | —                                  | ✅       | Link target (`mailto:` for `email`)                                 |
-| `position` | `integer` | DEFAULT `0`                        | ✅       | Display order                                                       |
+| Field      | Type      | Constraint                                     | Required | Description                                                   |
+|------------|-----------|------------------------------------------------|----------|---------------------------------------------------------------|
+| `id`       | `integer` | PK, IDENTITY                                   | ✅       | Unique identifier                                             |
+| `user_id`  | `integer` | FK → `users.id`, ON DELETE CASCADE             | ✅       | Owner of the link                                             |
+| `kind`     | `text`    | CHECK (enumerated), UNIQUE (`user_id`, `kind`) | ✅       | `github`, `discord`, `youtube` or `linkedin` (picks the icon) |
+| `url`      | `text`    | —                                              | ✅       | Link target                                                   |
+| `position` | `integer` | DEFAULT `0`                                    | ✅       | Display order                                                 |
 
 ---
 
@@ -139,6 +146,7 @@ Projects shown on the portfolio.
 | `started_on`   | `date`        | —                                   | ✅       | Start date                                                     |
 | `ended_on`     | `date`        | CHECK (`ended_on >= started_on`)    | ❌       | End date, `NULL` = ongoing                                     |
 | `is_published` | `boolean`     | DEFAULT `false`                     | ✅       | `false` = draft, only visible in the private area              |
+| `is_featured`  | `boolean`     | DEFAULT `false`                     | ✅       | Highlighted on the home page                                   |
 | `position`     | `integer`     | DEFAULT `0`                         | ✅       | Display order                                                  |
 | `updated_at`   | `timestamptz` | DEFAULT `now()`                     | ✅       | Last change, updated by the API                                |
 
@@ -146,12 +154,15 @@ Projects shown on the portfolio.
 
 ## Association table: `project_members`
 
-Authors of a project. A project can have several authors.
+Authors of a project, with the role of each one. A project can have several authors.
 
-| Field        | Type      | Constraint                                | Required | Description |
-|--------------|-----------|-------------------------------------------|----------|-------------|
-| `project_id` | `integer` | PK, FK → `projects.id`, ON DELETE CASCADE | ✅       | Project     |
-| `user_id`    | `integer` | PK, FK → `users.id`, ON DELETE CASCADE    | ✅       | Author      |
+| Field        | Type      | Constraint                                | Required | Description                                                   |
+|--------------|-----------|-------------------------------------------|----------|---------------------------------------------------------------|
+| `project_id` | `integer` | PK, FK → `projects.id`, ON DELETE CASCADE | ✅       | Project                                                       |
+| `user_id`    | `integer` | PK, FK → `users.id`, ON DELETE CASCADE    | ✅       | Author                                                        |
+| `role`       | `L10n`    | —                                         | ❌       | What the author did on the project, e.g. "Back-end, database" |
+
+> ℹ️ Edit rights: every member of a project can edit it, publish it and see its draft. Other users cannot. This rule is checked by the API, it needs no column.
 
 ---
 
@@ -200,11 +211,11 @@ Metadata of the uploaded files (images, CV in PDF). The file itself is stored ou
 
 ## Not stored in the database
 
-| Data                                     | Location                             | Reason                                                    |
-|------------------------------------------|--------------------------------------|-----------------------------------------------------------|
-| Image and PDF files                      | `uploads/` volume (later: S3 bucket) | Keeps the database and its backups light, files cacheable |
-| Interface texts (buttons, menus, labels) | `web/i18n/locales/*.json`            | Part of the code, versioned with it                       |
-| Logo, favicon, design images             | `web/public/`                        | Static, change only with the design                       |
-| Secrets (JWT key, database password)     | `.env` files                         | Never versioned, never in the database                    |
-| JWT tokens and sessions                  | Sealed cookie (Nuxt session)         | Stateless authentication                                  |
-| Contact messages                         | Not collected (`mailto:` link)       | Avoids spam handling and GDPR retention rules             |
+| Data                                     | Location                                                              | Reason                                                    |
+|------------------------------------------|-----------------------------------------------------------------------|-----------------------------------------------------------|
+| Image and PDF files                      | `uploads/` volume (later: S3 bucket)                                  | Keeps the database and its backups light, files cacheable |
+| Interface texts (buttons, menus, labels) | `web/i18n/locales/*.json`                                             | Part of the code, versioned with it                       |
+| Logo, favicon, design images             | `web/public/`                                                         | Static, change only with the design                       |
+| Secrets (JWT key, database password)     | `.env` files                                                          | Never versioned, never in the database                    |
+| JWT tokens and sessions                  | Sealed cookie (Nuxt session)                                          | Stateless authentication                                  |
+| Contact messages                         | Not collected (visitors use the contact email, phone or social links) | Avoids spam handling and GDPR retention rules             |
