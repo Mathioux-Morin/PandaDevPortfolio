@@ -1,7 +1,7 @@
 <template>
   <UApp :locale="uiLocale">
     <NuxtLayout>
-    <NuxtPage />
+      <NuxtPage />
     </NuxtLayout>
   </UApp>
 </template>

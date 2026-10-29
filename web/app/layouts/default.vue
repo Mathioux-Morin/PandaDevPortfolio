@@ -1,6 +1,6 @@
 <template>
-    <div>
-        <AppHeader />
-        <slot />
-    </div>
+  <div>
+    <AppHeader />
+    <slot />
+  </div>
 </template>
