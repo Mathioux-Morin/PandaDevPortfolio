@@ -1,5 +1,5 @@
 <!--
-  Public home page of the portfolio
+  Public portfolio page of Damien Gaetan
 -->
 <template>
   <UContainer>
@@ -12,5 +12,5 @@
 
 <script setup lang="ts">
 const { t } = useI18n()
-definePageMeta({ layout : 'dg'})
+definePageMeta({ layout: 'damien-gaetan' })
 </script>

@@ -1,5 +1,5 @@
 <!--
-  Public home page of the portfolio
+  Public portfolio page of Mathieu Morin
 -->
 <template>
   <UContainer>
@@ -12,5 +12,5 @@
 
 <script setup lang="ts">
 const { t } = useI18n()
-definePageMeta({ layout : 'mm'})
+definePageMeta({ layout: 'mathieu-morin' })
 </script>
