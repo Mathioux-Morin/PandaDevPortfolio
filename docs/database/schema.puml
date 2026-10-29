@@ -72,6 +72,7 @@ package "People" #DDE8F8 {
         --
         login : text <<unique>>
         password_hash : text
+        password_changed_at : timestamptz  // to add (migration)
     }
 
     entity profiles {
@@ -85,6 +86,8 @@ package "People" #DDE8F8 {
         contact_email : text <<nullable>>
         contact_phone : text <<nullable>>  // international format, e.g. +33612345678
         avatar_id : uuid <<FK, nullable>>
+        cv_fr_id : uuid <<FK, nullable>>  // PDF
+        cv_en_id : uuid <<FK, nullable>>  // PDF
         availability : text <<nullable>>  // open_to_work | internship | apprenticeship | not_available
         now : L10n <<nullable>>  // what the person is working on
         now_updated_at : timestamptz <<nullable>>
@@ -176,7 +179,7 @@ package "Files" #DDE8F8 {
     entity media {
         **id** : uuid <<PK>>
         --
-        owner_id : integer <<FK>>
+        owner_id : integer <<FK, nullable>>
         storage_key : text <<unique>>  // file in uploads/ or S3
         mime_type : text
         width : integer <<nullable>>
@@ -193,10 +196,11 @@ package "Files" #DDE8F8 {
 users "1" *-- "0..1" profiles
 users "1" *-- "0..*" social_links
 users "1" *-- "0..*" experiences
-users "1" *-- "0..*" media
 
 ' Aggregation: optional link, the media survives (ON DELETE SET NULL).
+users "0..1" o-- "0..*" media : owner
 profiles "0..*" o-- "0..1" media : avatar
+profiles "0..*" o-- "0..2" media : CV (fr, en)
 media "0..1" --o "0..*" projects : cover
 
 ' Many-to-many associations, carried by an association table.
