@@ -17,6 +17,15 @@
       header: `px-4 sm:px-6`
     }"
   >
+  <template #title>
+    <div class="flex item-center">
+      <span class="font-bold text-lg">PandaDev</span>
+
+      <img src="assets/logo/pandarouge.svg" alt="logo PandaDev" class="h-8 w-auto light:hidden"/>
+
+      <img src="assets/logo/pandableu.svg" alt="logo PandaDev" class="h-8 w-auto dark:hidden"/>
+    </div>
+  </template>
     <UNavigationMenu
       :items="items"
       :ui="LINK_UI"
