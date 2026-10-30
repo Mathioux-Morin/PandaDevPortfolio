@@ -3,6 +3,7 @@
 -->
 <template>
   <div class="flex min-h-[calc(100vh-var(--ui-header-height))] items-center justify-center p-4">
+    <div class="w-full max-w-md p-8 dark:bg-slate-900/80 dark:bg-gray-4 light:bg-gray-1 backdrop-blur-md border border-accent-6 rounded-2xl shadow-xl">
     <UAuthForm
       :schema="schema"
       :fields="fields"
@@ -14,6 +15,7 @@
       class="w-full max-w-sm"
       @submit="onSubmit"
     />
+    </div>
   </div>
 </template>
 
