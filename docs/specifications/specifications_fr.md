@@ -4,9 +4,10 @@
 
 > 🇬🇧 English version: [specifications_en.md](specifications_en.md)
 
-| Version         | Date       | Auteurs                        | Changements      |
-|-----------------|------------|--------------------------------|------------------|
-| 0.1 (brouillon) | 29/10/2026 | Mathieu MORIN, Mathias GARAIOS | Première version |
+| Version         | Date       | Auteurs                        | Changements                                                                                                                        |
+|-----------------|------------|--------------------------------|------------------------------------------------------------------------------------------------------------------------------------|
+| 0.1 (brouillon) | 29/10/2026 | Mathieu MORIN, Mathias GARAIOS | Première version                                                                                                                   |
+| 0.2 (brouillon) | 08/11/2026 | Mathieu MORIN, Mathias GARAIOS | Anglais facultatif avec repli sur le français, formulaire de contact, portfolio masqué, acceptation des co-auteurs, mascotte en 2D |
 
 ---
 
@@ -36,7 +37,7 @@ Un CV ou un profil LinkedIn ne montre pas les projets eux-mêmes : le code, les 
 
 - un site unique qui présente l'équipe tout en laissant à chacun son identité ;
 - un contenu modifiable depuis un espace privé, sans toucher au code ni redéployer le site (seule la mise en page propre à chaque membre se fait dans le code, voir [3.5](#35-ajout-dun-portfolio)) ;
-- un site bilingue, en français et en anglais.
+- un site bilingue : contenus saisis en français, et traduits en anglais quand le membre le souhaite.
 
 ### 1.5 Solution retenue
 
@@ -69,7 +70,10 @@ Trois composants, versionnés dans le même dépôt :
 - Construire les formulaires de saisie de l'espace privé ;
 - Mettre en place le stockage des images ;
 - Créer le pied de page du site, présent sur toutes les pages, avec le lien vers les mentions légales ;
-- Choisir l'hébergeur, nécessaire à la mise en ligne et à la page « Mentions légales ».
+- Choisir l'hébergeur, nécessaire à la mise en ligne et à la page « Mentions légales » (voir [5](#5-contraintes-et-limites)) ;
+- Choisir le nom de domaine et configurer SPF et DKIM, pour que les e-mails envoyés par le site ne soient pas classés en spam ;
+- Mettre en place l'envoi des e-mails du formulaire de contact ;
+- Réaliser des rendus 2D de la mascotte PandaDev, à partir d'un modèle 3D, pour illustrer le site sans alourdir les pages.
 
 ---
 
@@ -80,7 +84,7 @@ Trois composants, versionnés dans le même dépôt :
 1. Présenter le portfolio de chaque membre : profil, disponibilité, compétences, parcours et liens.
 2. Présenter les projets, individuels ou de groupe, avec le rôle de chaque membre.
 3. Permettre à chaque membre de modifier son contenu depuis l'espace privé, sans toucher au code.
-4. Proposer tout le contenu en français et en anglais.
+4. Proposer tout le contenu en français, et en anglais quand le membre l'a traduit.
 
 ### 3.2 Actions des utilisateurs
 
@@ -90,37 +94,40 @@ Le visiteur peut :
 - passer d'un portfolio à l'autre depuis la barre de navigation ;
 - filtrer les projets par techno ou par membre ;
 - changer de langue et passer du mode clair au mode sombre ;
-- contacter un membre par e-mail, par téléphone ou par ses liens (LinkedIn, Discord…), s'il les a renseignés.
+- contacter un membre par un formulaire qui lui envoie un e-mail, ou directement par e-mail, par téléphone ou par ses liens (LinkedIn, Discord…), s'il les a renseignés.
 
 Le membre connecté peut :
 
 - modifier son profil, ses coordonnées de contact, sa disponibilité et sa section « Now » ;
+- masquer son portfolio tant qu'il n'est pas prêt, puis le rendre public ;
+- désactiver son formulaire de contact ;
 - gérer ses liens, son parcours et ses technos ;
 - créer, modifier, publier et mettre en avant les projets dont il est membre ;
 - ajouter des co-auteurs à un projet et préciser leur rôle ;
+- accepter ou refuser d'apparaître comme co-auteur d'un projet ;
 - téléverser des images (avatar, couverture, galerie).
 
 ### 3.3 Données à enregistrer
 
 Le détail de chaque champ (type, contraintes, caractère obligatoire) est dans le [dictionnaire de données](../database/data_dictionary.md). En résumé :
 
-| Donnée   | Contenu                                                                                                                                    |
-|----------|--------------------------------------------------------------------------------------------------------------------------------------------|
-| Profil   | Nom affiché, titre, bio, ville, avatar, disponibilité, section « Now », e-mail et téléphone de contact, CV en PDF par langue (facultatifs) |
-| Liens    | GitHub, Discord, YouTube, LinkedIn, tous facultatifs                                                                                       |
-| Parcours | Expériences professionnelles et formations                                                                                                 |
-| Technos  | Catalogue partagé (nom, catégorie, icône) ; score de 0 à 100 par membre, niveau calculé automatiquement                                    |
-| Projets  | Titre, résumé, présentation, couverture, galerie, liens, dates, technos, membres et rôles, brouillon ou publié, mis en avant               |
-| Médias   | Images (WebP) et PDF : dimensions, poids, texte alternatif                                                                                 |
+| Donnée   | Contenu                                                                                                                                                                                                     |
+|----------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Profil   | Nom affiché, titre, bio, ville, avatar, disponibilité, section « Now », e-mail et téléphone de contact, CV en PDF par langue (facultatifs), portfolio public ou masqué, formulaire de contact activé ou non |
+| Liens    | GitHub, Discord, YouTube, LinkedIn, tous facultatifs                                                                                                                                                        |
+| Parcours | Expériences professionnelles et formations                                                                                                                                                                  |
+| Technos  | Catalogue partagé (nom, catégorie, icône) ; score de 0 à 100 par membre, niveau calculé automatiquement                                                                                                     |
+| Projets  | Titre, résumé, présentation, couverture, galerie, liens, dates, technos, membres et rôles (invitation acceptée ou en attente), brouillon ou publié, mis en avant                                            |
+| Médias   | Images (WebP) et PDF : dimensions, poids, texte alternatif                                                                                                                                                  |
 
-Tous les textes affichés aux visiteurs sont saisis dans les deux langues.
+Tous les textes affichés aux visiteurs sont saisis en français ; leur traduction anglaise est facultative (voir [4](#4-besoins-non-fonctionnels)).
 
 ### 3.4 Résultats attendus
 
 - Un visiteur comprend en moins d'une minute qui est chaque membre, ce qu'il sait faire et s'il est disponible.
 - Chaque projet de groupe indique clairement qui a fait quoi.
 - Un membre met à jour son contenu en quelques minutes, sans aide et sans redéploiement.
-- Un brouillon n'est jamais visible du public.
+- Un brouillon de projet ou un portfolio masqué n'est jamais visible du public.
 
 ### 3.5 Ajout d'un portfolio
 
@@ -129,7 +136,7 @@ Le site n'est pas limité à un nombre fixe de portfolios. Le **contenu** d'un p
 Ajouter un membre se fait en trois étapes :
 
 1. **Compte** : un développeur crée le compte du membre dans la base de données et choisit son slug, par exemple `jean-dupont`.
-2. **Contenu** : le membre se connecte et remplit son profil, ses liens, son parcours et ses technos depuis l'espace privé. Son portfolio est alors visible à l'adresse `/portfolios/<slug>`, avec la mise en page par défaut.
+2. **Contenu** : le membre se connecte et remplit son profil, ses liens, son parcours et ses technos depuis l'espace privé. Son portfolio, masqué à la création, devient visible à l'adresse `/portfolios/<slug>` quand il le rend public, avec la mise en page par défaut.
 3. **Mise en page propre (facultatif)** : un développeur crée, dans `web/app/` :
    - `pages/portfolios/<slug>/index.vue` : la page du membre ;
    - `layouts/<slug>.vue` : sa mise en page ;
@@ -143,30 +150,30 @@ Les fichiers sont nommés d'après le slug, qui est unique : deux homonymes ne p
 
 ## 4. Besoins non fonctionnels
 
-| Critère          | Détail                                                                                                                                                                                                                                                                                                                   |
-|------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Langues          | Interface et contenus en français (par défaut) et en anglais ; un contenu sans ses deux traductions est refusé                                                                                                                                                                                                           |
-| Responsive       | Utilisable sur ordinateur, tablette et téléphone                                                                                                                                                                                                                                                                         |
-| Accessibilité    | Texte alternatif obligatoire sur les images, contrastes de la palette Radix, navigation au clavier                                                                                                                                                                                                                       |
-| Sécurité         | Mots de passe forts (voir UC-12) et hachés (bcrypt), jetons JWT, écriture réservée aux membres connectés, édition d'un projet limitée à ses membres                                                                                                                                                                      |
-| Erreurs          | Page 404 et page d'erreur aux couleurs du site, traduites, avec l'en-tête et un lien de retour vers l'accueil ; aucun détail technique n'est montré au visiteur                                                                                                                                                          |
-| Mentions légales | Page « Mentions légales » (éditeurs du site, hébergeur), traduite et accessible depuis le pied de page de chaque page                                                                                                                                                                                                    |
-| Fichiers         | Vérification du vrai type de fichier, taille limitée, conversion en WebP, suppression des données EXIF, nom de fichier aléatoire                                                                                                                                                                                         |
-| Sauvegardes      | Sauvegarde automatique quotidienne de la base de données et du dossier `uploads/`, conservée 30 jours ; une restauration est testée avant la mise en ligne                                                                                                                                                               |
-| Performance      | Images optimisées (WebP), rendu côté serveur de Nuxt pour un premier affichage rapide                                                                                                                                                                                                                                    |
-| Référencement    | Rendu côté serveur, URL lisibles (slugs), titre et description propres à chaque page, aperçu de partage (Open Graph) avec l'avatar du membre ou la couverture du projet, `sitemap.xml` des pages publiques (sans brouillons ni espace privé), liens entre les versions française et anglaise de chaque page (`hreflang`) |
-| Maintenabilité   | Code typé, linters (ruff, ESLint), tests de l'API (pytest) et du site (Vitest avec `@nuxt/test-utils` pour les composants, Playwright pour les parcours principaux : connexion, consultation d'un portfolio, publication d'un projet), documentation tenue à jour                                                        |
+| Critère          | Détail                                                                                                                                                                                                                                                                                                                                       |
+|------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Langues          | Interface en français (par défaut) et en anglais. Contenus saisis en français, traduction anglaise facultative : si elle manque, le texte français s'affiche à la place, avec l'attribut `lang="fr"` pour les lecteurs d'écran                                                                                                               |
+| Responsive       | Utilisable sur ordinateur, tablette et téléphone                                                                                                                                                                                                                                                                                             |
+| Accessibilité    | Texte alternatif obligatoire sur les images, contrastes de la palette Radix, navigation au clavier                                                                                                                                                                                                                                           |
+| Sécurité         | Mots de passe forts (voir UC-12) et hachés (bcrypt), jetons JWT, écriture réservée aux membres connectés, édition d'un projet limitée à ses membres                                                                                                                                                                                          |
+| Erreurs          | Page 404 et page d'erreur aux couleurs du site, traduites, avec l'en-tête et un lien de retour vers l'accueil ; aucun détail technique n'est montré au visiteur                                                                                                                                                                              |
+| Mentions légales | Page « Mentions légales » (éditeurs du site, hébergeur), traduite et accessible depuis le pied de page de chaque page                                                                                                                                                                                                                        |
+| Fichiers         | Vérification du vrai type de fichier, taille limitée, conversion en WebP, suppression des données EXIF, nom de fichier aléatoire                                                                                                                                                                                                             |
+| Sauvegardes      | Sauvegarde automatique quotidienne de la base de données et du dossier `uploads/`, conservée 30 jours ; une restauration est testée avant la mise en ligne                                                                                                                                                                                   |
+| Performance      | Images optimisées (WebP), rendu côté serveur de Nuxt pour un premier affichage rapide, illustrations de la mascotte en 2D plutôt qu'en 3D                                                                                                                                                                                                    |
+| Référencement    | Rendu côté serveur, URL lisibles (slugs), titre et description propres à chaque page, aperçu de partage (Open Graph) avec l'avatar du membre ou la couverture du projet, `sitemap.xml` des pages publiques (sans brouillons, portfolios masqués ni espace privé), liens entre les versions française et anglaise de chaque page (`hreflang`) |
+| Maintenabilité   | Code typé, linters (ruff, ESLint), tests de l'API (pytest) et du site (Vitest avec `@nuxt/test-utils` pour les composants, Playwright pour les parcours principaux : connexion, consultation d'un portfolio, publication d'un projet), documentation tenue à jour                                                                            |
 
 ---
 
 ## 5. Contraintes et limites
 
 - **Comptes** : pas d'inscription publique. Les comptes des membres sont créés directement dans la base de données, avec leur slug. Changer un slug reste possible dans la base, mais il faut alors renommer les fichiers de la mise en page du membre, et les anciens liens ne fonctionnent plus. La suppression d'un compte se fait aussi dans la base de données.
-- **Langues** : uniquement le français et l'anglais.
-- **Contact** : pas de formulaire de contact, donc pas de messages à stocker ni de spam à gérer. Les visiteurs écrivent ou téléphonent directement au membre, ou passent par ses liens.
-- **Liens** : limités à GitHub, Discord, YouTube et LinkedIn. En ajouter un autre demande une migration de la base.
-- **Confidentialité** : aucune donnée personnelle de visiteur n'est collectée. Seules les informations que les membres choisissent de publier sont stockées, y compris leur e-mail et leur téléphone de contact, qui restent facultatifs. L'adresse IP d'un visiteur sert uniquement, en mémoire, à limiter les demandes de coordonnées et de CV ; elle n'est jamais enregistrée. Le site n'utilise que des cookies et un stockage local techniques (session de connexion, langue, mode clair / sombre et thème) : aucun bandeau de consentement n'est nécessaire.
-- **Hébergement** : à définir. Le choix doit être fait avant la mise en ligne, car la page « Mentions légales » doit indiquer le nom, l'adresse et le téléphone de l'hébergeur.
+- **Langues** : uniquement le français et l'anglais. Le français est obligatoire et sert de langue de repli.
+- **Contact** : le formulaire de contact envoie le message par e-mail à l'adresse de contact du membre ; il n'est jamais stocké en base. L'API le protège des robots par un champ caché et une limite d'envois par adresse IP. Le membre peut désactiver le formulaire. Les visiteurs peuvent aussi écrire ou téléphoner directement au membre, ou passer par ses liens.
+- **Liens** : limités à GitHub, Discord, YouTube et LinkedIn pour l'instant. En ajouter un autre demande une migration de la base.
+- **Confidentialité** : aucune donnée personnelle de visiteur n'est stockée par le site. Les messages du formulaire de contact ne sont pas conservés : ils sont transmis par e-mail au membre, et une mention sous le formulaire l'indique. Seules les informations que les membres choisissent de publier sont stockées, y compris leur e-mail et leur téléphone de contact, qui restent facultatifs. L'adresse IP d'un visiteur sert uniquement, en mémoire, à limiter les demandes de coordonnées et de CV et les envois du formulaire ; elle n'est jamais enregistrée. Le site n'utilise que des cookies et un stockage local techniques (session de connexion, langue, mode clair / sombre et thème) : aucun bandeau de consentement n'est nécessaire.
+- **Hébergement** : à définir. Le choix doit être fait avant la mise en ligne, car la page « Mentions légales » doit indiquer le nom, l'adresse et le téléphone de l'hébergeur. L'hébergeur doit accepter PostgreSQL 18 (le schéma utilise `uuidv7()`), une API FastAPI en Python 3.15 et le rendu côté serveur de Nuxt.
 
 ---
 
@@ -241,6 +248,7 @@ Chaque cas d'utilisation regroupe ses user stories, au format « En tant que…,
 Critères d'acceptation :
 
 - seuls les projets publiés et mis en avant apparaissent, triés par position ;
+- seuls les membres dont le portfolio est public apparaissent ;
 - chaque membre renvoie vers son portfolio.
 
 ### UC-02 — Parcourir les portfolios
@@ -254,7 +262,7 @@ Critères d'acceptation :
 - ce menu est généré à partir des profils enregistrés, sans liste écrite dans le code, et il est présent dans tous les en-têtes (site principal et portfolios) ;
 - le portfolio en cours est signalé dans le menu ;
 - le menu reste utilisable sur mobile, dans le panneau latéral ;
-- un membre sans profil n'apparaît ni dans la page ni dans le menu.
+- un membre sans profil, ou dont le portfolio est masqué, n'apparaît ni dans la page ni dans le menu.
 
 ### UC-03 — Consulter le portfolio d'un membre
 
@@ -264,17 +272,25 @@ Critères d'acceptation :
 - **US-03.4** — En tant que visiteur, je veux voir ses projets et sa section « Now », afin de savoir ce qu'il a réalisé et sur quoi il travaille en ce moment.
 - **US-03.5** — En tant que membre, je veux que mon portfolio ait sa propre mise en page, afin qu'il reflète ma personnalité.
 - **US-03.6** — En tant que visiteur, je veux télécharger le CV d'un membre, afin de le joindre à un dossier de recrutement.
+- **US-03.7** — En tant que visiteur, je veux envoyer un message à un membre depuis son portfolio, afin de le contacter sans quitter le site.
 
 Critères d'acceptation :
 
 - l'adresse est `/portfolios/<slug>` (`/en/portfolios/<slug>` en anglais) ;
+- un portfolio masqué renvoie une page 404 à un visiteur ; son membre le voit avec un bandeau « Portfolio masqué : visible uniquement par vous » ;
 - la disponibilité s'affiche sous forme de badge, et n'apparaît pas si elle n'est pas renseignée ;
 - la section « Now » affiche sa date de dernière mise à jour ;
 - seuls les liens renseignés s'affichent ;
 - le bouton de téléchargement du CV n'apparaît que si un CV existe ; il propose le CV de la langue active, ou l'autre s'il n'y en a qu'un ;
 - l'e-mail et le téléphone n'apparaissent que s'ils sont renseignés ;
 - l'e-mail, le téléphone et le lien du CV ne sont pas inclus dans la page envoyée au navigateur : le visiteur clique sur « Afficher l'e-mail », « Afficher le téléphone » ou « Télécharger le CV », et le site les demande alors à l'API, pour limiter leur collecte par des robots de spam (un CV contient en général les mêmes coordonnées) ;
-- l'API limite le nombre de ces demandes par visiteur (par exemple 10 par minute), pour qu'un robot ne puisse pas les récupérer en masse.
+- l'API limite le nombre de ces demandes par visiteur (par exemple 10 par minute), pour qu'un robot ne puisse pas les récupérer en masse ;
+- le formulaire de contact n'apparaît que si le membre a renseigné un e-mail de contact et n'a pas désactivé le formulaire ;
+- le nom, l'e-mail et le message du visiteur sont obligatoires, et une adresse invalide est refusée ;
+- le message est envoyé à l'e-mail de contact du membre, avec l'adresse du visiteur comme adresse de réponse, et n'est pas stocké en base ;
+- l'API refuse les envois qui remplissent le champ caché anti-robot et limite les envois par visiteur (par exemple 3 par heure) ;
+- un message de confirmation ou d'erreur traduit s'affiche après l'envoi ;
+- une mention sous le formulaire indique que le message est transmis par e-mail au membre et n'est pas conservé par le site.
 
 ### UC-04 — Parcourir les projets
 
@@ -327,7 +343,7 @@ Critères d'acceptation :
 Critères d'acceptation :
 
 - les résultats sont dans la langue active ;
-- les brouillons sont exclus ;
+- les brouillons et les portfolios masqués sont exclus ;
 - la recherche s'utilise entièrement au clavier.
 
 ### UC-09 — Consulter la frise chronologique
@@ -385,16 +401,21 @@ Critères d'acceptation :
 - **US-13.4** — En tant que membre, je veux mettre à jour ma section « Now », afin de montrer sur quoi je travaille en ce moment.
 - **US-13.5** — En tant que membre, je veux renseigner un e-mail et un numéro de téléphone de contact, afin que les recruteurs puissent me joindre directement.
 - **US-13.6** — En tant que membre, je veux téléverser mon CV en PDF, en français et en anglais, afin que les recruteurs puissent le télécharger.
+- **US-13.7** — En tant que membre, je veux masquer mon portfolio, afin de le préparer avant de le rendre public.
+- **US-13.8** — En tant que membre, je veux désactiver mon formulaire de contact, afin de ne plus recevoir de messages par ce biais.
 
 Critères d'acceptation :
 
-- les textes sont saisis en français et en anglais ;
+- les textes sont saisis en français, et en anglais si le membre le souhaite ;
 - l'identifiant d'URL (slug) est unique et ne contient que des minuscules, des chiffres et des tirets ;
 - le slug est choisi à la création du compte (voir [3.5](#35-ajout-dun-portfolio)) et ne se modifie pas depuis l'espace privé, car il fixe l'adresse du portfolio et le nom des fichiers de sa mise en page ;
 - la date de mise à jour de « Now » change automatiquement à chaque modification de la section ;
 - l'e-mail et le téléphone sont facultatifs ; une adresse invalide est refusée et le numéro est enregistré au format international (`+33…`) ;
 - chaque CV (français, anglais) est facultatif ; seul un PDF est accepté (10 Mo maximum, voir UC-20), et l'API vérifie que le fichier lié est bien un PDF ;
 - remplacer un CV supprime l'ancien fichier ;
+- le portfolio d'un compte neuf est masqué ; le membre le rend public, ou le masque à nouveau, depuis l'espace privé ;
+- un portfolio masqué n'apparaît ni dans le menu, ni sur l'accueil, ni dans la liste des portfolios, le sitemap, la recherche ou la frise ; sur les projets de groupe, le nom du membre reste affiché, sans lien vers son portfolio ;
+- désactiver le formulaire de contact ne masque ni l'e-mail ni le téléphone ;
 - un membre ne peut modifier que son propre profil.
 
 ### UC-14 — Gérer ses liens sociaux
@@ -449,9 +470,9 @@ Critères d'acceptation :
 
 Critères d'acceptation :
 
-- le créateur devient automatiquement membre du projet ;
+- le créateur devient automatiquement membre du projet, sans invitation à accepter ;
 - seuls les membres du projet peuvent le modifier, le publier ou voir son brouillon ;
-- les textes sont saisis en français et en anglais ;
+- les textes sont saisis en français, et en anglais si les membres le souhaitent ;
 - une suppression demande une confirmation ;
 - la prévisualisation utilise la même page que le projet publié (`/projects/<slug>`), avec un bandeau « Brouillon : visible uniquement par les membres du projet » ;
 - un visiteur ou un membre qui ne fait pas partie du projet reçoit une page 404 (voir UC-05).
@@ -460,12 +481,16 @@ Critères d'acceptation :
 
 - **US-19.1** — En tant que membre du projet, je veux ajouter un autre membre comme co-auteur, afin que le projet apparaisse aussi sur son portfolio.
 - **US-19.2** — En tant que membre du projet, je veux préciser le rôle de chaque membre, afin que les visiteurs sachent qui a fait quoi.
+- **US-19.3** — En tant que membre invité sur un projet, je veux accepter ou refuser d'y apparaître, afin de garder le contrôle de mon portfolio.
 
 Critères d'acceptation :
 
-- un projet garde toujours au moins un membre : la base de données et l'API refusent de retirer son dernier membre, avec un message d'erreur traduit ;
+- ajouter un co-auteur crée une invitation en attente, signalée par un badge dans son espace privé ;
+- tant qu'il n'a pas accepté, l'invité ne peut pas modifier le projet ni voir son brouillon, et il n'apparaît ni sur la page du projet ni sur son portfolio ;
+- s'il accepte, il devient membre du projet ; s'il refuse, l'invitation est supprimée et il peut être invité à nouveau ;
+- un projet garde toujours au moins un membre ayant accepté : la base de données et l'API refusent de retirer son dernier membre, avec un message d'erreur traduit ;
 - un compte ne peut pas être supprimé tant qu'il est membre d'un projet : il faut d'abord le retirer de ses projets, et supprimer ceux dont il est le seul membre ou leur ajouter un autre membre ;
-- le rôle est facultatif, mais saisi dans les deux langues s'il est rempli.
+- le rôle est facultatif ; s'il est rempli, il est saisi en français, et en anglais si les membres le souhaitent.
 
 ### UC-20 — Téléverser et gérer des médias
 
@@ -503,7 +528,7 @@ Critères d'acceptation :
 
 Critères d'acceptation :
 
-- un article est rédigé en français et en anglais, et peut rester en brouillon comme un projet ;
+- un article est rédigé en français, et en anglais si son auteur le souhaite, et peut rester en brouillon comme un projet ;
 - le schéma de la base est à concevoir.
 
 ---
@@ -531,4 +556,4 @@ Critères d'acceptation :
 
 ## 10. Hors périmètre
 
-Ces idées ont été étudiées puis écartées, car elles brouillent le message professionnel du portfolio : badges et succès, soundboard, compteur de cafés, humeur du jour, citation du mois, calendrier des disponibilités, « mode recruteur » pour masquer le contenu non professionnel.
+Ces idées ont été étudiées puis écartées, car elles brouillent le message professionnel du portfolio : badges et succès, soundboard, compteur de cafés, humeur du jour, citation du mois, calendrier des disponibilités, « mode recruteur » pour masquer le contenu non professionnel, modèle 3D animé de la mascotte (trop lourd sur mobile, remplacé par des rendus 2D).
