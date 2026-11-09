@@ -70,7 +70,7 @@ Three components, versioned in the same repository:
 - Build the forms of the private area;
 - Set up image storage;
 - Create the website footer, shown on every page, with the link to the legal notice;
-- Choose the host, needed to go live and for the "Legal notice" page (see [5](#5-constraints-and-limits));
+- Choose the host between OVHcloud and Infomaniak, needed to go live and for the "Legal notice" page (see [5](#5-constraints-and-limits));
 - Choose the domain name and set up SPF and DKIM, so that the emails sent by the website are not flagged as spam;
 - Set up the sending of the contact form emails;
 - Make 2D renders of the PandaDev mascot, from a 3D model, to illustrate the website without making the pages heavier.
@@ -173,7 +173,32 @@ Files are named after the slug, which is unique, so two people with the same nam
 - **Contact**: the contact form sends the message by email to the member's contact address; it is never stored in the database. The API protects it from bots with a hidden field and a limit of messages per IP address. The member can turn the form off. Visitors can also email or call the member directly, or use their links.
 - **Links**: limited to GitHub, Discord, YouTube and LinkedIn for now. Adding another one requires a database migration.
 - **Privacy**: no personal data of visitors is stored by the website. Contact form messages are not kept: they are sent by email to the member, and a notice under the form says so. Only the information the members choose to publish is stored, including their contact email and phone, which stay optional. The IP address of a visitor is only used, in memory, to limit the requests for contact details and CVs and the form messages; it is never stored. The website only uses technical cookies and local storage (login session, language, light / dark mode and theme): no consent banner is needed.
-- **Hosting**: to be decided. The choice must be made before going live, because the "Legal notice" page must give the name, address and phone number of the host. The host must support PostgreSQL 18 (the schema uses `uuidv7()`), a FastAPI API on Python 3.15 and Nuxt server-side rendering.
+- **Hosting**: OVHcloud or Infomaniak, the final choice is still to be made. It must be made before going live, because the "Legal notice" page must give the name, address and phone number of the host. The website runs on a VPS with root access: shared hosting (o2switch, for example) does not allow installing Bun, uv or Docker. The VPS runs PostgreSQL 18 in Docker (the schema uses `uuidv7()`), the FastAPI API on Python 3.15 and Nuxt server-side rendering. It needs at least 4 GB of RAM. The two candidates are compared in [5.1](#51-host-comparison).
+- **Domain name and email**: a `.fr` domain, with email at the domain provider. The domain does not have to be at the VPS host: pointing it to the server's IP address is enough. No mail server is installed on the VPS. The two options are compared in [5.1](#51-host-comparison).
+
+### 5.1 Host comparison
+
+Prices checked on 9 November 2026, to be checked again when ordering.
+
+**Server (VPS)**
+
+| Criterion | OVHcloud VPS-1                                                                                                        | Infomaniak VPS Lite                                                                                                              |
+|-----------|-----------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------|
+| Resources | 2 vCores, 4 GB of RAM, 40 GB NVMe                                                                                     | 2 vCPUs, 4 GB of RAM, 60 GB NVMe                                                                                                 |
+| Price     | €4.57 per month including VAT                                                                                         | CHF 7.20 per month, one-year commitment paid upfront                                                                             |
+| Pros      | The cheapest; hosted in France, under French and EU law (GDPR); daily backup of the last 24 hours included            | Available to order; more disk space; independent host, known for respecting privacy                                              |
+| Cons      | Out of stock in November 2026, with no restock date; a Canadian court case (since 2024) demands data stored in France | Swiss law (nFADP), recognised as equivalent to the GDPR but outside the EU; no snapshots and no uptime guarantee; more expensive |
+
+**Domain name and email, for two mailboxes (one per member)**
+
+| Criterion         | OVHcloud                                                                                         | Infomaniak                                                                          |
+|-------------------|--------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------|
+| `.fr`             | €5.99 incl. VAT the first year, then €9.35 incl. VAT per year                                    | €6.12 the first year, then €8.40 per year                                           |
+| Email             | E-mail Starter included with the `.fr` (15 GB), €0.36 incl. VAT per month for each extra mailbox | 1 Starter address free with the domain, Service Mail from €1.50 excl. VAT per month |
+| Total, first year | ≈ €10 incl. VAT                                                                                  | ≈ €24 excl. VAT                                                                     |
+| Total, then       | ≈ €14 incl. VAT per year                                                                         | ≈ €26 excl. VAT per year                                                            |
+| Pros              | The cheapest; emails hosted in France                                                            | Same account as the Infomaniak VPS; unlimited mail storage with Service Mail        |
+| Cons              | A second account to manage if the VPS is at Infomaniak; 15 GB per mailbox                        | About twice as expensive; Swiss law                                                 |
 
 ---
 

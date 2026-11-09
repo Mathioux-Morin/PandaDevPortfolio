@@ -70,7 +70,7 @@ Trois composants, versionnés dans le même dépôt :
 - Construire les formulaires de saisie de l'espace privé ;
 - Mettre en place le stockage des images ;
 - Créer le pied de page du site, présent sur toutes les pages, avec le lien vers les mentions légales ;
-- Choisir l'hébergeur, nécessaire à la mise en ligne et à la page « Mentions légales » (voir [5](#5-contraintes-et-limites)) ;
+- Choisir l'hébergeur entre OVHcloud et Infomaniak, nécessaire à la mise en ligne et à la page « Mentions légales » (voir [5](#5-contraintes-et-limites)) ;
 - Choisir le nom de domaine et configurer SPF et DKIM, pour que les e-mails envoyés par le site ne soient pas classés en spam ;
 - Mettre en place l'envoi des e-mails du formulaire de contact ;
 - Réaliser des rendus 2D de la mascotte PandaDev, à partir d'un modèle 3D, pour illustrer le site sans alourdir les pages.
@@ -173,7 +173,32 @@ Les fichiers sont nommés d'après le slug, qui est unique : deux homonymes ne p
 - **Contact** : le formulaire de contact envoie le message par e-mail à l'adresse de contact du membre ; il n'est jamais stocké en base. L'API le protège des robots par un champ caché et une limite d'envois par adresse IP. Le membre peut désactiver le formulaire. Les visiteurs peuvent aussi écrire ou téléphoner directement au membre, ou passer par ses liens.
 - **Liens** : limités à GitHub, Discord, YouTube et LinkedIn pour l'instant. En ajouter un autre demande une migration de la base.
 - **Confidentialité** : aucune donnée personnelle de visiteur n'est stockée par le site. Les messages du formulaire de contact ne sont pas conservés : ils sont transmis par e-mail au membre, et une mention sous le formulaire l'indique. Seules les informations que les membres choisissent de publier sont stockées, y compris leur e-mail et leur téléphone de contact, qui restent facultatifs. L'adresse IP d'un visiteur sert uniquement, en mémoire, à limiter les demandes de coordonnées et de CV et les envois du formulaire ; elle n'est jamais enregistrée. Le site n'utilise que des cookies et un stockage local techniques (session de connexion, langue, mode clair / sombre et thème) : aucun bandeau de consentement n'est nécessaire.
-- **Hébergement** : à définir. Le choix doit être fait avant la mise en ligne, car la page « Mentions légales » doit indiquer le nom, l'adresse et le téléphone de l'hébergeur. L'hébergeur doit accepter PostgreSQL 18 (le schéma utilise `uuidv7()`), une API FastAPI en Python 3.15 et le rendu côté serveur de Nuxt.
+- **Hébergement** : OVHcloud ou Infomaniak, le choix final reste à faire. Il doit être fait avant la mise en ligne, car la page « Mentions légales » doit indiquer le nom, l'adresse et le téléphone de l'hébergeur. Le site tourne sur un VPS avec accès root : un hébergement mutualisé (o2switch par exemple) ne permet d'installer ni Bun, ni uv, ni Docker. Le VPS fait tourner PostgreSQL 18 dans Docker (le schéma utilise `uuidv7()`), l'API FastAPI en Python 3.15 et le rendu côté serveur de Nuxt. Il faut au moins 4 Go de RAM. Les deux candidats sont comparés en [5.1](#51-comparatif-des-hébergeurs).
+- **Nom de domaine et e-mail** : un `.fr`, avec l'e-mail chez le prestataire du domaine. Le domaine n'a pas besoin d'être chez l'hébergeur du VPS : il suffit de le faire pointer vers l'adresse IP du serveur. Aucun serveur mail n'est installé sur le VPS. Les deux formules sont comparées en [5.1](#51-comparatif-des-hébergeurs).
+
+### 5.1 Comparatif des hébergeurs
+
+Prix relevés le 9 novembre 2026, à revérifier au moment de commander.
+
+**Serveur (VPS)**
+
+| Critère    | OVHcloud VPS-1                                                                                                                                       | Infomaniak VPS Lite                                                                                                 |
+|------------|------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------|
+| Ressources | 2 vCores, 4 Go de RAM, 40 Go NVMe                                                                                                                    | 2 vCPU, 4 Go de RAM, 60 Go NVMe                                                                                     |
+| Prix       | 4,57 € TTC par mois                                                                                                                                  | CHF 7.20 par mois, engagement d'un an payé d'avance                                                                 |
+| Pour       | Le moins cher ; hébergé en France, sous droit français et européen (RGPD) ; sauvegarde quotidienne des dernières 24 heures incluse                   | Disponible à la commande ; plus d'espace disque ; hébergeur indépendant, réputé pour le respect de la vie privée    |
+| Contre     | En rupture de stock en novembre 2026, sans date de retour ; une procédure judiciaire canadienne (depuis 2024) réclame des données stockées en France | Droit suisse (nLPD), reconnu équivalent au RGPD mais hors UE ; ni snapshot ni garantie de disponibilité ; plus cher |
+
+**Nom de domaine et e-mail, pour deux boîtes (une par membre)**
+
+| Critère          | OVHcloud                                                                           | Infomaniak                                                                     |
+|------------------|------------------------------------------------------------------------------------|--------------------------------------------------------------------------------|
+| `.fr`            | 5,99 € TTC la 1re année, puis 9,35 € TTC par an                                    | 6,12 € la 1re année, puis 8,40 € par an                                        |
+| E-mail           | E-mail Starter inclus avec le `.fr` (15 Go), 0,36 € TTC par mois par boîte en plus | 1 adresse Starter offerte avec le domaine, Service Mail dès 1,50 € HT par mois |
+| Total, 1re année | ≈ 10 € TTC                                                                         | ≈ 24 € HT                                                                      |
+| Total, ensuite   | ≈ 14 € TTC par an                                                                  | ≈ 26 € HT par an                                                               |
+| Pour             | Le moins cher ; e-mails hébergés en France                                         | Même compte que le VPS Infomaniak ; stockage mail illimité avec Service Mail   |
+| Contre           | Un second compte à gérer si le VPS est chez Infomaniak ; 15 Go par boîte           | Environ deux fois plus cher ; droit suisse                                     |
 
 ---
 
