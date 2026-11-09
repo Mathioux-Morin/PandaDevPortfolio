@@ -55,6 +55,19 @@ Code, file names, comments and documentation are in English.
 * **Website**: texts are translated with `@nuxtjs/i18n`, in [`web/i18n/locales/`](web/i18n/locales) (`fr.json`, `en.json`). French is the default locale (`/login`), other locales get a URL prefix (`/en/login`). Never write a user-facing text directly in a component: add a key to every locale file.
 * **API**: texts shown in Swagger and API error messages are in French. The website does not display them as is: the Nuxt server returns an error code (e.g. `invalid_credentials`) that the page translates.
 
+### Branches
+
+Branch names follow `type/component-subject`, in lowercase with dashes. The component is `api`, `web` or `db`, and is left out when the work concerns none of them (e.g. `chore/vps-setup`). Each issue gives the name of its branch.
+
+| Type     | Use                                | Format                              | Example                       |
+|----------|------------------------------------|-------------------------------------|-------------------------------|
+| `feat/`  | Use case (part of a UC)            | `feat/<component>-uc<nn>-<subject>` | `feat/api-uc13-profile`       |
+| `feat/`  | Other feature                      | `feat/<component>-<subject>`        | `feat/web-footer`             |
+| `fix/`   | Bug fix                            | `fix/<component>-<subject>`         | `fix/api-login-error-message` |
+| `ci/`    | Continuous integration             | `ci/<component>-<subject>`          | `ci/api-lint-tests`           |
+| `chore/` | Tooling, infrastructure, seed data | `chore/<component>-<subject>`       | `chore/db-backups`            |
+| `docs/`  | Documentation only                 | `docs/<subject>`                    | `docs/specifications-hosting` |
+
 ## License
 
 [MIT](LICENSE) © 2026 Mathieu MORIN, Mathias GARAIOS
