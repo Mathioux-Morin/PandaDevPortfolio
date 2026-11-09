@@ -52,9 +52,6 @@ Public profile of a user. One profile at most per user.
 | `contact_email`        | `text`        | —                                                | ❌       | Contact address shown on the portfolio, validated by the API (Pydantic `EmailStr`)  |
 | `contact_phone`        | `text`        | CHECK (`contact_phone ~ '^\+[1-9][0-9]{6,14}$'`) | ❌       | Contact phone number in international format (E.164), e.g. `+33612345678`           |
 | `contact_form_enabled` | `boolean`     | DEFAULT `true`                                   | ✅       | Shows the contact form on the portfolio, when `contact_email` is set                |
-| `idAvatar`             | `uuid`        | FK → `media.idMedia`, ON DELETE SET NULL         | ❌       | Profile picture                                                                     |
-| `idCvFr`               | `uuid`        | FK → `media.idMedia`, ON DELETE SET NULL         | ❌       | CV in French (PDF), downloadable from the portfolio                                 |
-| `idCvEn`               | `uuid`        | FK → `media.idMedia`, ON DELETE SET NULL         | ❌       | CV in English (PDF), downloadable from the portfolio                                |
 | `availability`         | `text`        | CHECK (enumerated)                               | ❌       | `open_to_work`, `internship`, `apprenticeship` or `not_available`, shown as a badge |
 | `now`                  | `L10n`        | —                                                | ❌       | What the person is working on or learning right now ("Now" section)                 |
 | `now_updated_at`       | `timestamptz` | —                                                | ❌       | Last change of `now`, set by the API, shows how fresh the section is                |
@@ -65,6 +62,24 @@ Public profile of a user. One profile at most per user.
 > ℹ️ A new profile is hidden (`is_public = false`). A hidden portfolio returns a 404 page to visitors and is left out of the header menu, the home page, the portfolio list, the sitemap, the search and the timeline. On group projects, the member's name is still shown, without a link to the portfolio.
 >
 > ℹ️ The contact form sends the message by email to `contact_email`, with the visitor's address as reply-to. The message is never stored in the database (see [Not stored in the database](#not-stored-in-the-database)). Turning the form off hides neither `contact_email` nor `contact_phone`.
+>
+> ℹ️ The profile picture and the CVs are linked through [`profile_media`](#association-table-profile_media).
+
+---
+
+## Association table: `profile_media`
+
+Files used by a profile: profile picture and CVs. One file at most per kind.
+
+| Field     | Type      | Constraint                                    | Required | Description                                                                   |
+|-----------|-----------|-----------------------------------------------|----------|-------------------------------------------------------------------------------|
+| `idUser`  | `integer` | PK, FK → `profiles.idUser`, ON DELETE CASCADE | ✅       | Profile                                                                       |
+| `idMedia` | `uuid`    | PK, FK → `media.idMedia`, ON DELETE CASCADE   | ✅       | File used by the profile                                                      |
+| `kind`    | `text`    | CHECK (enumerated), UNIQUE (`idUser`, `kind`) | ✅       | `avatar` (profile picture), `cv_fr` or `cv_en` (CV in French or English, PDF) |
+
+> ℹ️ The API checks that the file matches its kind: `image/webp` for `avatar`, `application/pdf` for `cv_fr` and `cv_en`.
+>
+> ℹ️ Deleting a media deletes its row here, so the profile simply loses its picture or CV. Deleting a profile deletes its rows, the media themselves are removed by the account deletion (see [`media`](#table-media)).
 
 ---
 

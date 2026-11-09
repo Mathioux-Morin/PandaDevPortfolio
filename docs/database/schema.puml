@@ -87,13 +87,17 @@ package "People" #DDE8F8 {
         contact_email : text <<nullable>>
         contact_phone : text <<nullable>>  // international format, e.g. +33612345678
         contact_form_enabled : boolean
-        idAvatar : uuid <<FK, nullable>>
-        idCvFr : uuid <<FK, nullable>>  // PDF
-        idCvEn : uuid <<FK, nullable>>  // PDF
         availability : text <<nullable>>  // open_to_work | internship | apprenticeship | not_available
         now : L10n <<nullable>>  // what the person is working on
         now_updated_at : timestamptz <<nullable>>
         updated_at : timestamptz
+    }
+
+    entity profile_media {
+        **idUser** : integer <<PK, FK>>
+        **idMedia** : uuid <<PK, FK>>
+        --
+        kind : text  // avatar | cv_fr | cv_en, one per kind
     }
 
     entity social_links {
@@ -202,11 +206,11 @@ users "1" *-- "0..*" experiences
 
 ' Aggregation: optional link, the media survives (ON DELETE SET NULL).
 users "0..1" o-- "0..*" media : owner
-profiles "0..*" o-- "0..1" media : avatar
-profiles "0..*" o-- "0..2" media : CV (fr, en)
 media "0..1" --o "0..*" projects : cover
 
 ' Many-to-many associations, carried by an association table.
+profiles "0..*" -- "0..3" media : avatar, CV (fr, en)
+(profiles, media) .. profile_media
 users "0..*" -- "0..*" technologies
 (users, technologies) .. user_technologies
 users "1..*" -- "0..*" projects : member
