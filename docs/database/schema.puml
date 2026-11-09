@@ -51,8 +51,8 @@ skinparam note {
 skinparam ArrowColor #2E75B6
 skinparam ArrowFontColor #1F4E79
 skinparam packageStyle rectangle
-skinparam nodesep 30
-skinparam ranksep 80
+skinparam nodesep 80
+skinparam ranksep 120
 skinparam linetype ortho
 
 legend top right
@@ -226,30 +226,44 @@ package "Files" #DDE8F8 {
 ' UML notation, top to bottom: People, then Files and Catalog, then Projects.
 
 ' Composition: the part is deleted with its owner (ON DELETE CASCADE).
-users "1" *-- "0..1" profiles
-users "1" *-- "0..*" social_links
-users "1" *-- "0..*" experiences
-experiences "1" *-- "0..*" experience_links
+users "1" *-down- "0..1" profiles
+users "1" *-down- "0..*" experiences
+users "1" *-down- "0..*" social_links
+experiences "1" *-down- "0..*" experience_links
 
 ' Reference: the kind of a link (ON DELETE RESTRICT).
-link_kinds "1" -- "0..*" social_links : kind
-link_kinds "1" -- "0..*" experience_links : kind
+link_kinds "1" -up- "0..*" social_links : kind
+link_kinds "1" -up- "0..*" experience_links : kind
 
 ' Aggregation: optional link, the media survives (ON DELETE SET NULL).
-users "0..1" o-- "0..*" media : owner
-media "0..1" --o "0..1" projects : cover
+users "0..1" o-down- "0..*" media : owner
+media "0..1" -down-o "0..1" projects : cover
 
 ' Many-to-many associations, carried by an association table.
-profiles "0..*" -- "0..3" media : avatar, CV (fr, en)
+profiles "0..*" -down- "0..3" media : avatar, CV (fr, en)
 (profiles, media) .. attaches
-users "0..*" -- "0..*" skills
+users "0..*" -down- "0..*" skills
 (users, skills) .. masters
-experiences "0..*" -- "0..*" skills
+experiences "0..*" -down- "0..*" skills
 (experiences, skills) .. involves
-users "1..*" -- "0..*" projects : member
+users "1..*" -down- "0..*" projects : member
 (users, projects) .. works_on
-skills "0..*" -- "0..*" projects
+skills "0..*" -down- "0..*" projects
 (skills, projects) .. uses
-media "0..*" -- "0..*" projects : gallery
+media "0..*" -down- "0..*" projects : gallery
 (media, projects) .. shows
+
+' Layout only: invisible links that keep each table close to what it links.
+experiences -[hidden]down- involves
+social_links -[hidden]down- masters
+profiles -[hidden]down- attaches
+experience_links -[hidden]down- link_kinds
+masters -[hidden]down- skills
+attaches -[hidden]down- media
+skills -[hidden]down- projects
+' Repeated on purpose: pulls projects right under media, so that cover and
+' gallery leave media far apart instead of side by side.
+media -[hidden]down- projects
+media -[hidden]down- projects
+media -[hidden]down- projects
 @enduml
