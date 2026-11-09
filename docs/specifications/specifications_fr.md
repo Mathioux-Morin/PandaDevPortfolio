@@ -45,7 +45,7 @@ Trois composants, versionnés dans le même dépôt :
 
 - **API REST (FastAPI, Python 3.15, SQLModel)** : authentification par login et mot de passe (jeton JWT), lecture publique des contenus, écriture réservée aux membres connectés, téléversement des images.
 - **Site web (Nuxt 4, Nuxt UI, Bun)** : partie publique (accueil, portfolios, projets, à propos) et espace privé de saisie. Traduction avec `@nuxtjs/i18n`.
-- **Base de données (PostgreSQL 18, Docker Compose)** : stocke les contenus (profils, projets, technos, médias…). Les fichiers images sont stockés hors de la base. Le schéma est décrit dans [`docs/database/`](../database/).
+- **Base de données (PostgreSQL 18, Docker Compose)** : stocke les contenus (profils, projets, technos, médias…). Les fichiers images sont stockés hors de la base. Le script SQL est découpé en fichiers séparés par type d'objet (tables, fonctions, déclencheurs, vues…), exécutés dans l'ordre de leur numéro au premier démarrage. Le schéma est décrit dans [`docs/database/`](../database/).
 
 ---
 
