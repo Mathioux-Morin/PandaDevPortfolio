@@ -61,7 +61,7 @@ Three components, versioned in the same repository:
 | Look and feel  | PandaDev color palette (Radix), light / dark mode, responsive header                                                                                            |
 | Public pages   | Home, Projects and About pages created, without content                                                                                                         |
 | Portfolios     | One page per member, with the structure of its own layout (layout, header, hero) and shared components (projects, background, technologies, links), still empty |
-| Database       | `users` table created; full schema proposed ([schema.puml](../database/schema.puml), [data dictionary](../database/data_dictionary.md))                         |
+| Database       | `users` table created; full schema proposed ([schema_mld.puml](../database/schema_mld.puml), [data dictionary](../database/data_dictionary.md))                 |
 
 ### 2.2 Still to do
 

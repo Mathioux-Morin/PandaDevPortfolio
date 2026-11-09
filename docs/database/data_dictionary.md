@@ -2,7 +2,7 @@
 
 ## _PandaDev Portfolio — PostgreSQL database_
 
-Companion of the diagram [`schema.puml`](schema.puml): both files must be updated together. Only `users` exists today ([`db/init/01_users.sql`](../../db/init/01_users.sql)), the other tables are proposed.
+Companion of the diagram [`schema_mld.puml`](schema_mld.puml): both files must be updated together. Only `users` exists today ([`db/init/01_users.sql`](../../db/init/01_users.sql)), the other tables are proposed.
 
 ---
 

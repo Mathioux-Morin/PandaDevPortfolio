@@ -4,9 +4,9 @@
 ' Portfolio database schema (PostgreSQL).
 ' Light blue table: already created by db/init/. Other tables: proposed.
 ' Field details: docs/database/data_dictionary.md (keep both files in sync).
-' Render: plantuml -tsvg docs/database/schema.puml
+' Render: plantuml -tsvg docs/database/schema_mld.puml
 
-@startuml schema
+@startuml schema_mld
 hide circle
 hide methods
 skinparam classAttributeIconSize 0

@@ -61,7 +61,7 @@ Trois composants, versionnés dans le même dépôt :
 | Apparence        | Palette de couleurs PandaDev (Radix), mode clair / sombre, en-tête responsive                                                                                        |
 | Pages publiques  | Accueil, Projets et À propos créées, sans contenu                                                                                                                    |
 | Portfolios       | Une page par membre, avec la structure de sa mise en page propre (layout, en-tête, hero) et des composants communs (projets, parcours, technos, liens), encore vides |
-| Base de données  | Table `users` créée ; schéma complet proposé ([schema.puml](../database/schema.puml), [dictionnaire de données](../database/data_dictionary.md))                     |
+| Base de données  | Table `users` créée ; schéma complet proposé ([schema_mld.puml](../database/schema_mld.puml), [dictionnaire de données](../database/data_dictionary.md))             |
 
 ### 2.2 Reste à faire
 
