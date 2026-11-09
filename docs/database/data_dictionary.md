@@ -99,19 +99,22 @@ External links of a user. All optional: a user can have no link at all, and one 
 
 ## Table: `experiences`
 
-Professional and education history of a user.
+Background of a user: professional career, education and personal training.
 
-| Field          | Type      | Constraint                             | Required | Description                                      |
-|----------------|-----------|----------------------------------------|----------|--------------------------------------------------|
-| `idExperience` | `integer` | PK, IDENTITY                           | ✅       | Unique identifier                                |
-| `idUser`       | `integer` | FK → `users.idUser`, ON DELETE CASCADE | ✅       | Person concerned                                 |
-| `kind`         | `text`    | CHECK (enumerated)                     | ✅       | `work` (job, internship) or `education` (degree) |
-| `organization` | `text`    | —                                      | ✅       | Company or school                                |
-| `role`         | `L10n`    | —                                      | ✅       | Job title or degree name                         |
-| `description`  | `L10n`    | —                                      | ✅       | Missions, results (Markdown)                     |
-| `location`     | `text`    | —                                      | ❌       | City                                             |
-| `start_on`     | `date`    | —                                      | ✅       | Start date                                       |
-| `end_on`       | `date`    | CHECK (`end_on >= start_on`)           | ❌       | End date, `NULL` = ongoing                       |
+| Field          | Type      | Constraint                             | Required | Description                                                                                                                  |
+|----------------|-----------|----------------------------------------|----------|------------------------------------------------------------------------------------------------------------------------------|
+| `idExperience` | `integer` | PK, IDENTITY                           | ✅       | Unique identifier                                                                                                            |
+| `idUser`       | `integer` | FK → `users.idUser`, ON DELETE CASCADE | ✅       | Person concerned                                                                                                             |
+| `kind`         | `text`    | CHECK (enumerated)                     | ✅       | `work` (job, internship, apprenticeship), `education` (degree) or `training` (personal training, e.g. TryHackMe, ANSSI MOOC) |
+| `organization` | `text`    | —                                      | ✅       | Company, school, platform or training body                                                                                   |
+| `role`         | `L10n`    | —                                      | ✅       | Job title, degree name, or course or certificate followed                                                                    |
+| `description`  | `L10n`    | —                                      | ✅       | Missions, results (Markdown)                                                                                                 |
+| `location`     | `text`    | —                                      | ❌       | City, `NULL` for online training                                                                                             |
+| `url`          | `text`    | —                                      | ❌       | Link to a certificate or a public profile (e.g. TryHackMe)                                                                   |
+| `start_on`     | `date`    | —                                      | ✅       | Start date                                                                                                                   |
+| `end_on`       | `date`    | CHECK (`end_on >= start_on`)           | ❌       | End date, `NULL` = ongoing                                                                                                   |
+
+> ℹ️ A single table for the three kinds: they share the same columns, and the timeline sorts the whole background with one query. The portfolio shows one section per `kind`.
 
 ---
 

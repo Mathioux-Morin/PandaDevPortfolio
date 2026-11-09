@@ -113,11 +113,12 @@ package "People" #DDE8F8 {
         **idExperience** : integer <<PK>>
         --
         idUser : integer <<FK>>
-        kind : text  // work | education
+        kind : text  // work | education | training
         organization : text
         role : L10n
         description : L10n
         location : text <<nullable>>
+        url : text <<nullable>>  // certificate or profile
         start_on : date
         end_on : date <<nullable>>
     }
