@@ -140,7 +140,7 @@ package "Projects" #DDE8F8 {
         title : L10n
         summary : L10n
         content : L10n <<nullable>>  // Markdown
-        idCover : uuid <<FK, nullable>>
+        idCover : uuid <<FK, unique, nullable>>
         repo_url : text <<nullable>>
         demo_url : text <<nullable>>
         started_on : date
@@ -206,7 +206,7 @@ users "1" *-- "0..*" experiences
 
 ' Aggregation: optional link, the media survives (ON DELETE SET NULL).
 users "0..1" o-- "0..*" media : owner
-media "0..1" --o "0..*" projects : cover
+media "0..1" --o "0..1" projects : cover
 
 ' Many-to-many associations, carried by an association table.
 profiles "0..*" -- "0..3" media : avatar, CV (fr, en)

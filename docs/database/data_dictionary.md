@@ -159,22 +159,22 @@ Shared catalog of technologies, used by both the profiles (`user_technologies`) 
 
 Projects shown on the portfolio.
 
-| Field          | Type          | Constraint                               | Required | Description                                                    |
-|----------------|---------------|------------------------------------------|----------|----------------------------------------------------------------|
-| `idProject`    | `integer`     | PK, IDENTITY                             | ✅       | Unique identifier                                              |
-| `slug`         | `text`        | UNIQUE, slug format                      | ✅       | Public URL of the project, e.g. `/projects/pandadev-portfolio` |
-| `title`        | `L10n`        | —                                        | ✅       | Project name                                                   |
-| `summary`      | `L10n`        | —                                        | ✅       | One or two sentences shown on the project cards                |
-| `content`      | `L10n`        | —                                        | ❌       | Full presentation (Markdown) on the project page               |
-| `idCover`      | `uuid`        | FK → `media.idMedia`, ON DELETE SET NULL | ❌       | Main image of the project                                      |
-| `repo_url`     | `text`        | —                                        | ❌       | Source code repository                                         |
-| `demo_url`     | `text`        | —                                        | ❌       | Online demo                                                    |
-| `started_on`   | `date`        | —                                        | ✅       | Start date                                                     |
-| `ended_on`     | `date`        | CHECK (`ended_on >= started_on`)         | ❌       | End date, `NULL` = ongoing                                     |
-| `is_published` | `boolean`     | DEFAULT `false`                          | ✅       | `false` = draft, only visible in the private area              |
-| `is_featured`  | `boolean`     | DEFAULT `false`                          | ✅       | Highlighted on the home page                                   |
-| `position`     | `integer`     | DEFAULT `0`                              | ✅       | Display order                                                  |
-| `updated_at`   | `timestamptz` | DEFAULT `now()`                          | ✅       | Last change, updated by the API                                |
+| Field          | Type          | Constraint                                       | Required | Description                                                    |
+|----------------|---------------|--------------------------------------------------|----------|----------------------------------------------------------------|
+| `idProject`    | `integer`     | PK, IDENTITY                                     | ✅       | Unique identifier                                              |
+| `slug`         | `text`        | UNIQUE, slug format                              | ✅       | Public URL of the project, e.g. `/projects/pandadev-portfolio` |
+| `title`        | `L10n`        | —                                                | ✅       | Project name                                                   |
+| `summary`      | `L10n`        | —                                                | ✅       | One or two sentences shown on the project cards                |
+| `content`      | `L10n`        | —                                                | ❌       | Full presentation (Markdown) on the project page               |
+| `idCover`      | `uuid`        | UNIQUE, FK → `media.idMedia`, ON DELETE SET NULL | ❌       | Main image of the project, never shared with another project   |
+| `repo_url`     | `text`        | —                                                | ❌       | Source code repository                                         |
+| `demo_url`     | `text`        | —                                                | ❌       | Online demo                                                    |
+| `started_on`   | `date`        | —                                                | ✅       | Start date                                                     |
+| `ended_on`     | `date`        | CHECK (`ended_on >= started_on`)                 | ❌       | End date, `NULL` = ongoing                                     |
+| `is_published` | `boolean`     | DEFAULT `false`                                  | ✅       | `false` = draft, only visible in the private area              |
+| `is_featured`  | `boolean`     | DEFAULT `false`                                  | ✅       | Highlighted on the home page                                   |
+| `position`     | `integer`     | DEFAULT `0`                                      | ✅       | Display order                                                  |
+| `updated_at`   | `timestamptz` | DEFAULT `now()`                                  | ✅       | Last change, updated by the API                                |
 
 ---
 
