@@ -57,7 +57,7 @@ skinparam linetype ortho
 
 legend top right
     **PK** primary key, **FK** foreign key
-    **L10n** = jsonb {"fr": "...", "en": "..."}
+    **L10n** = jsonb {"fr": "...", "en": "..."}, "en" optional (French fallback)
     <<existing>>: table already in db/init/
     **level**: 0-24 beginner, 25-49 intermediate, 50-74 advanced, 75-100 expert
     Filled diamond: composition (ON DELETE CASCADE)
@@ -79,12 +79,14 @@ package "People" #DDE8F8 {
         **user_id** : integer <<PK, FK>>
         --
         slug : text <<unique>>
+        is_public : boolean  // false = hidden portfolio
         display_name : text
         headline : L10n
         bio : L10n
         location : text <<nullable>>
         contact_email : text <<nullable>>
         contact_phone : text <<nullable>>  // international format, e.g. +33612345678
+        contact_form_enabled : boolean
         avatar_id : uuid <<FK, nullable>>
         cv_fr_id : uuid <<FK, nullable>>  // PDF
         cv_en_id : uuid <<FK, nullable>>  // PDF
@@ -149,6 +151,7 @@ package "Projects" #DDE8F8 {
         **project_id** : integer <<PK, FK>>
         **user_id** : integer <<PK, FK>>
         --
+        status : text  // pending | accepted
         role : L10n <<nullable>>  // e.g. back-end, database
     }
 

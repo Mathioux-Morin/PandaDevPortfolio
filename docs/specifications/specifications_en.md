@@ -4,9 +4,10 @@
 
 > 🇫🇷 Version française : [specifications_fr.md](specifications_fr.md)
 
-| Version     | Date       | Authors                        | Changes       |
-|-------------|------------|--------------------------------|---------------|
-| 0.1 (draft) | 2026-10-29 | Mathieu MORIN, Mathias GARAIOS | First version |
+| Version     | Date       | Authors                        | Changes                                                                                                |
+|-------------|------------|--------------------------------|--------------------------------------------------------------------------------------------------------|
+| 0.1 (draft) | 2026-10-29 | Mathieu MORIN, Mathias GARAIOS | First version                                                                                          |
+| 0.2 (draft) | 2026-11-08 | Mathieu MORIN, Mathias GARAIOS | Optional English with French fallback, contact form, hidden portfolio, co-author acceptance, 2D mascot |
 
 ---
 
@@ -36,7 +37,7 @@ A résumé or a LinkedIn profile does not show the projects themselves: the code
 
 - a single website that presents the team while letting each member keep their own identity;
 - content they can edit from a private area, without touching the code or redeploying the website (only the layout specific to each member is done in the code, see [3.5](#35-adding-a-portfolio));
-- a bilingual website, in French and English.
+- a bilingual website: content entered in French, and translated into English when the member wants to.
 
 ### 1.5 Chosen solution
 
@@ -69,7 +70,10 @@ Three components, versioned in the same repository:
 - Build the forms of the private area;
 - Set up image storage;
 - Create the website footer, shown on every page, with the link to the legal notice;
-- Choose the host, needed to go live and for the "Legal notice" page.
+- Choose the host, needed to go live and for the "Legal notice" page (see [5](#5-constraints-and-limits));
+- Choose the domain name and set up SPF and DKIM, so that the emails sent by the website are not flagged as spam;
+- Set up the sending of the contact form emails;
+- Make 2D renders of the PandaDev mascot, from a 3D model, to illustrate the website without making the pages heavier.
 
 ---
 
@@ -80,7 +84,7 @@ Three components, versioned in the same repository:
 1. Present the portfolio of each member: profile, availability, skills, background and links.
 2. Present the projects, individual or group ones, with the role of each member.
 3. Let each member edit their content from the private area, without touching the code.
-4. Offer all the content in French and English.
+4. Offer all the content in French, and in English when the member has translated it.
 
 ### 3.2 User actions
 
@@ -90,37 +94,40 @@ A visitor can:
 - go from one portfolio to another from the navigation bar;
 - filter the projects by technology or by member;
 - switch the language and switch between light and dark mode;
-- contact a member by email, by phone or through their links (LinkedIn, Discord…), when the member has set them.
+- contact a member through a form that sends them an email, or directly by email, by phone or through their links (LinkedIn, Discord…), when the member has set them.
 
 A logged-in member can:
 
 - edit their profile, their contact details, their availability and their "Now" section;
+- hide their portfolio while it is not ready, then make it public;
+- turn off their contact form;
 - manage their links, their background and their technologies;
 - create, edit, publish and feature the projects they are a member of;
 - add co-authors to a project and set their role;
+- accept or decline to appear as a co-author of a project;
 - upload images (avatar, cover, gallery).
 
 ### 3.3 Data to store
 
 The detail of each field (type, constraints, required or not) is in the [data dictionary](../database/data_dictionary.md). In short:
 
-| Data         | Content                                                                                                                            |
-|--------------|------------------------------------------------------------------------------------------------------------------------------------|
-| Profile      | Display name, headline, bio, city, avatar, availability, "Now" section, contact email and phone, CV in PDF per language (optional) |
-| Links        | GitHub, Discord, YouTube, LinkedIn, all optional                                                                                   |
-| Background   | Work experiences and education                                                                                                     |
-| Technologies | Shared catalog (name, category, icon); score from 0 to 100 per member, level computed automatically                                |
-| Projects     | Title, summary, presentation, cover, gallery, links, dates, technologies, members and roles, draft or published, featured          |
-| Media        | Images (WebP) and PDF: dimensions, size, alternative text                                                                          |
+| Data         | Content                                                                                                                                                                                |
+|--------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Profile      | Display name, headline, bio, city, avatar, availability, "Now" section, contact email and phone, CV in PDF per language (optional), public or hidden portfolio, contact form on or off |
+| Links        | GitHub, Discord, YouTube, LinkedIn, all optional                                                                                                                                       |
+| Background   | Work experiences and education                                                                                                                                                         |
+| Technologies | Shared catalog (name, category, icon); score from 0 to 100 per member, level computed automatically                                                                                    |
+| Projects     | Title, summary, presentation, cover, gallery, links, dates, technologies, members and roles (invitation accepted or pending), draft or published, featured                             |
+| Media        | Images (WebP) and PDF: dimensions, size, alternative text                                                                                                                              |
 
-Every text shown to visitors is entered in both languages.
+Every text shown to visitors is entered in French; its English translation is optional (see [4](#4-non-functional-requirements)).
 
 ### 3.4 Expected results
 
 - In less than a minute, a visitor understands who each member is, what they can do and whether they are available.
 - Each group project clearly shows who did what.
 - A member updates their content in a few minutes, without help and without redeploying.
-- A draft is never visible to the public.
+- A project draft or a hidden portfolio is never visible to the public.
 
 ### 3.5 Adding a portfolio
 
@@ -129,7 +136,7 @@ The website is not limited to a fixed number of portfolios. The **content** of a
 Adding a member takes three steps:
 
 1. **Account**: a developer creates the member's account in the database and picks their slug, e.g. `jean-dupont`.
-2. **Content**: the member logs in and fills in their profile, links, background and technologies from the private area. Their portfolio is then visible at `/portfolios/<slug>`, with the default layout.
+2. **Content**: the member logs in and fills in their profile, links, background and technologies from the private area. Their portfolio, hidden when the account is created, becomes visible at `/portfolios/<slug>` when they make it public, with the default layout.
 3. **Own layout (optional)**: a developer creates, in `web/app/`:
    - `pages/portfolios/<slug>/index.vue`: the member's page;
    - `layouts/<slug>.vue`: their layout;
@@ -143,30 +150,30 @@ Files are named after the slug, which is unique, so two people with the same nam
 
 ## 4. Non-functional requirements
 
-| Criterion       | Detail                                                                                                                                                                                                                                                                                                       |
-|-----------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Languages       | Interface and content in French (default) and English; content without both translations is rejected                                                                                                                                                                                                         |
-| Responsive      | Usable on desktop, tablet and phone                                                                                                                                                                                                                                                                          |
-| Accessibility   | Alternative text required on images, contrast of the Radix palette, keyboard navigation                                                                                                                                                                                                                      |
-| Security        | Strong (see UC-12) and hashed (bcrypt) passwords, JWT tokens, writing restricted to logged-in members, project editing restricted to its members                                                                                                                                                             |
-| Errors          | 404 and error pages in the website style, translated, with the header and a link back to the home page; no technical detail is shown to the visitor                                                                                                                                                          |
-| Legal notice    | "Legal notice" page (website publishers, host), translated and reachable from the footer of every page                                                                                                                                                                                                       |
-| Files           | Real file type checked, size limited, conversion to WebP, EXIF data removed, random file name                                                                                                                                                                                                                |
-| Backups         | Automatic daily backup of the database and of the `uploads/` folder, kept for 30 days; a restore is tested before going live                                                                                                                                                                                 |
-| Performance     | Optimized images (WebP), Nuxt server-side rendering for a fast first display                                                                                                                                                                                                                                 |
-| SEO             | Server-side rendering, readable URLs (slugs), title and description specific to each page, share preview (Open Graph) with the member's avatar or the project cover, `sitemap.xml` of the public pages (no drafts, no private area), links between the French and English versions of each page (`hreflang`) |
-| Maintainability | Typed code, linters (ruff, ESLint), API tests (pytest) and website tests (Vitest with `@nuxt/test-utils` for components, Playwright for the main flows: login, viewing a portfolio, publishing a project), documentation kept up to date                                                                     |
+| Criterion       | Detail                                                                                                                                                                                                                                                                                                                             |
+|-----------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Languages       | Interface in French (default) and English. Content entered in French, English translation optional: when it is missing, the French text is shown instead, with the `lang="fr"` attribute for screen readers                                                                                                                        |
+| Responsive      | Usable on desktop, tablet and phone                                                                                                                                                                                                                                                                                                |
+| Accessibility   | Alternative text required on images, contrast of the Radix palette, keyboard navigation                                                                                                                                                                                                                                            |
+| Security        | Strong (see UC-12) and hashed (bcrypt) passwords, JWT tokens, writing restricted to logged-in members, project editing restricted to its members                                                                                                                                                                                   |
+| Errors          | 404 and error pages in the website style, translated, with the header and a link back to the home page; no technical detail is shown to the visitor                                                                                                                                                                                |
+| Legal notice    | "Legal notice" page (website publishers, host), translated and reachable from the footer of every page                                                                                                                                                                                                                             |
+| Files           | Real file type checked, size limited, conversion to WebP, EXIF data removed, random file name                                                                                                                                                                                                                                      |
+| Backups         | Automatic daily backup of the database and of the `uploads/` folder, kept for 30 days; a restore is tested before going live                                                                                                                                                                                                       |
+| Performance     | Optimized images (WebP), Nuxt server-side rendering for a fast first display, 2D mascot illustrations rather than 3D                                                                                                                                                                                                               |
+| SEO             | Server-side rendering, readable URLs (slugs), title and description specific to each page, share preview (Open Graph) with the member's avatar or the project cover, `sitemap.xml` of the public pages (no drafts, no hidden portfolios, no private area), links between the French and English versions of each page (`hreflang`) |
+| Maintainability | Typed code, linters (ruff, ESLint), API tests (pytest) and website tests (Vitest with `@nuxt/test-utils` for components, Playwright for the main flows: login, viewing a portfolio, publishing a project), documentation kept up to date                                                                                           |
 
 ---
 
 ## 5. Constraints and limits
 
 - **Accounts**: no public sign-up. Member accounts are created directly in the database, with their slug. A slug can still be changed in the database, but the member's layout files must then be renamed, and old links stop working. Accounts are deleted in the database as well.
-- **Languages**: French and English only.
-- **Contact**: no contact form, so no messages to store and no spam to handle. Visitors email or call the member directly, or use their links.
-- **Links**: limited to GitHub, Discord, YouTube and LinkedIn. Adding another one requires a database migration.
-- **Privacy**: no personal data of visitors is collected. Only the information the members choose to publish is stored, including their contact email and phone, which stay optional. The IP address of a visitor is only used, in memory, to limit the requests for contact details and CVs; it is never stored. The website only uses technical cookies and local storage (login session, language, light / dark mode and theme): no consent banner is needed.
-- **Hosting**: to be decided. The choice must be made before going live, because the "Legal notice" page must give the name, address and phone number of the host.
+- **Languages**: French and English only. French is required and is the fallback language.
+- **Contact**: the contact form sends the message by email to the member's contact address; it is never stored in the database. The API protects it from bots with a hidden field and a limit of messages per IP address. The member can turn the form off. Visitors can also email or call the member directly, or use their links.
+- **Links**: limited to GitHub, Discord, YouTube and LinkedIn for now. Adding another one requires a database migration.
+- **Privacy**: no personal data of visitors is stored by the website. Contact form messages are not kept: they are sent by email to the member, and a notice under the form says so. Only the information the members choose to publish is stored, including their contact email and phone, which stay optional. The IP address of a visitor is only used, in memory, to limit the requests for contact details and CVs and the form messages; it is never stored. The website only uses technical cookies and local storage (login session, language, light / dark mode and theme): no consent banner is needed.
+- **Hosting**: to be decided. The choice must be made before going live, because the "Legal notice" page must give the name, address and phone number of the host. The host must support PostgreSQL 18 (the schema uses `uuidv7()`), a FastAPI API on Python 3.15 and Nuxt server-side rendering.
 
 ---
 
@@ -241,6 +248,7 @@ Each use case groups its user stories, written as "As a…, I want…, so that�
 Acceptance criteria:
 
 - only published and featured projects are shown, sorted by position;
+- only members whose portfolio is public are shown;
 - each member links to their portfolio.
 
 ### UC-02 — Browse the portfolios
@@ -254,7 +262,7 @@ Acceptance criteria:
 - this menu is built from the stored profiles, with no list written in the code, and it is present in every header (main website and portfolios);
 - the current portfolio is highlighted in the menu;
 - the menu stays usable on mobile, in the side panel;
-- a member without a profile appears neither on the page nor in the menu.
+- a member without a profile, or whose portfolio is hidden, appears neither on the page nor in the menu.
 
 ### UC-03 — View the portfolio of a member
 
@@ -264,17 +272,25 @@ Acceptance criteria:
 - **US-03.4** — As a visitor, I want to see their projects and their "Now" section, so that I know what they built and what they are working on right now.
 - **US-03.5** — As a member, I want my portfolio to have its own layout, so that it reflects my personality.
 - **US-03.6** — As a visitor, I want to download the CV of a member, so that I can add it to a recruitment file.
+- **US-03.7** — As a visitor, I want to send a message to a member from their portfolio, so that I contact them without leaving the website.
 
 Acceptance criteria:
 
 - the address is `/portfolios/<slug>` (`/en/portfolios/<slug>` in English);
+- a hidden portfolio returns a 404 page to a visitor; its member sees it with a banner "Hidden portfolio: only visible to you";
 - the availability is shown as a badge, and is hidden when not set;
 - the "Now" section shows the date of its last update;
 - only the links that are set are shown;
 - the CV download button is shown only when a CV exists; it offers the CV in the active language, or the other one when only one exists;
 - the email and phone are shown only when set;
 - the email, the phone and the CV link are not included in the page sent to the browser: the visitor clicks "Show email", "Show phone" or "Download CV", and the website then requests them from the API, so that spam bots cannot easily collect them (a CV usually contains the same contact details);
-- the API limits the number of these requests per visitor (e.g. 10 per minute), so that a bot cannot collect them in bulk.
+- the API limits the number of these requests per visitor (e.g. 10 per minute), so that a bot cannot collect them in bulk;
+- the contact form is shown only when the member has set a contact email and has not turned the form off;
+- the visitor's name, email and message are required, and an invalid address is rejected;
+- the message is sent to the member's contact email, with the visitor's address as the reply-to address, and is not stored in the database;
+- the API rejects messages that fill in the hidden anti-bot field and limits messages per visitor (e.g. 3 per hour);
+- a translated confirmation or error message is shown after sending;
+- a notice under the form says that the message is sent by email to the member and is not kept by the website.
 
 ### UC-04 — Browse the projects
 
@@ -327,7 +343,7 @@ Acceptance criteria:
 Acceptance criteria:
 
 - results are in the active language;
-- drafts are excluded;
+- drafts and hidden portfolios are excluded;
 - the search can be used with the keyboard only.
 
 ### UC-09 — View the timeline
@@ -385,16 +401,21 @@ Acceptance criteria:
 - **US-13.4** — As a member, I want to update my "Now" section, so that I show what I am working on right now.
 - **US-13.5** — As a member, I want to set a contact email and phone number, so that recruiters can reach me directly.
 - **US-13.6** — As a member, I want to upload my CV in PDF, in French and in English, so that recruiters can download it.
+- **US-13.7** — As a member, I want to hide my portfolio, so that I can prepare it before making it public.
+- **US-13.8** — As a member, I want to turn off my contact form, so that I no longer receive messages through it.
 
 Acceptance criteria:
 
-- texts are entered in French and English;
+- texts are entered in French, and in English if the member wants to;
 - the URL identifier (slug) is unique and only contains lowercase letters, digits and dashes;
 - the slug is picked when the account is created (see [3.5](#35-adding-a-portfolio)) and cannot be changed from the private area, because it sets the portfolio address and the names of its layout files;
 - the update date of "Now" changes automatically each time the section is edited;
 - the email and phone are optional; an invalid address is rejected and the number is stored in international format (`+33…`);
 - each CV (French, English) is optional; only a PDF is accepted (10 MB at most, see UC-20), and the API checks that the linked file is a PDF;
 - replacing a CV deletes the old file;
+- the portfolio of a new account is hidden; the member makes it public, or hides it again, from the private area;
+- a hidden portfolio appears neither in the menu, nor on the home page, the portfolio list, the sitemap, the search or the timeline; on group projects, the member's name is still shown, without a link to their portfolio;
+- turning off the contact form hides neither the email nor the phone;
 - a member can only edit their own profile.
 
 ### UC-14 — Manage one's social links
@@ -449,9 +470,9 @@ Acceptance criteria:
 
 Acceptance criteria:
 
-- the creator automatically becomes a member of the project;
+- the creator automatically becomes a member of the project, with no invitation to accept;
 - only the project members can edit it, publish it or see its draft;
-- texts are entered in French and English;
+- texts are entered in French, and in English if the members want to;
 - a deletion asks for confirmation;
 - the preview uses the same page as the published project (`/projects/<slug>`), with a banner "Draft: only visible to the project members";
 - a visitor, or a member who is not part of the project, gets a 404 page (see UC-05).
@@ -460,12 +481,16 @@ Acceptance criteria:
 
 - **US-19.1** — As a project member, I want to add another member as a co-author, so that the project also appears on their portfolio.
 - **US-19.2** — As a project member, I want to set the role of each member, so that visitors know who did what.
+- **US-19.3** — As a member invited to a project, I want to accept or decline to appear on it, so that I keep control of my portfolio.
 
 Acceptance criteria:
 
-- a project always keeps at least one member: the database and the API refuse to remove its last member, with a translated error message;
+- adding a co-author creates a pending invitation, flagged by a badge in their private area;
+- until they accept, the invited member cannot edit the project or see its draft, and appears neither on the project page nor on their portfolio;
+- if they accept, they become a member of the project; if they decline, the invitation is deleted and they can be invited again;
+- a project always keeps at least one member who has accepted: the database and the API refuse to remove its last member, with a translated error message;
 - an account cannot be deleted while it is a member of a project: it must first be removed from its projects, and the projects where it is the only member must be deleted or get another member;
-- the role is optional, but entered in both languages when set.
+- the role is optional; when set, it is entered in French, and in English if the members want to.
 
 ### UC-20 — Upload and manage media
 
@@ -503,7 +528,7 @@ Acceptance criteria:
 
 Acceptance criteria:
 
-- an article is written in French and English, and can stay a draft like a project;
+- an article is written in French, and in English if its author wants to, and can stay a draft like a project;
 - the database schema is still to be designed.
 
 ---
@@ -531,4 +556,4 @@ Acceptance criteria:
 
 ## 10. Out of scope
 
-These ideas were studied and then dropped, because they blur the professional message of the portfolio: badges and achievements, soundboard, coffee counter, mood of the day, quote of the month, availability calendar, "recruiter mode" to hide the non-professional content.
+These ideas were studied and then dropped, because they blur the professional message of the portfolio: badges and achievements, soundboard, coffee counter, mood of the day, quote of the month, availability calendar, "recruiter mode" to hide the non-professional content, animated 3D model of the mascot (too heavy on mobile, replaced by 2D renders).

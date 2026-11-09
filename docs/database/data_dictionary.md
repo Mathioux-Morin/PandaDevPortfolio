@@ -8,14 +8,14 @@ Companion of the diagram [`schema.puml`](schema.puml): both files must be update
 
 ## Conventions
 
-| Notation          | Meaning                                                                                                |
-|-------------------|--------------------------------------------------------------------------------------------------------|
-| `L10n`            | `jsonb` holding one text per locale: `{"fr": "...", "en": "..."}`. `CHECK (col ? 'fr' AND col ? 'en')` |
-| `IDENTITY`        | `integer GENERATED ALWAYS AS IDENTITY`, same as `users.id`                                             |
-| `slug`            | URL identifier, `CHECK (slug ~ '^[a-z0-9]+(-[a-z0-9]+)*$')`, e.g. `pandadev-portfolio`                 |
-| `position`        | Display order, ascending, default `0`                                                                  |
-| Enumerated `text` | Stored in English, `CHECK (col IN (...))`. The website translates the value with `@nuxtjs/i18n`        |
-| URLs              | Validated by the API (Pydantic `HttpUrl`), stored as `text`                                            |
+| Notation          | Meaning                                                                                                                                                                                  |
+|-------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `L10n`            | `jsonb` holding one text per locale: `{"fr": "...", "en": "..."}`. `CHECK (col ? 'fr')`: French is required, English is optional and the website falls back to French when it is missing |
+| `IDENTITY`        | `integer GENERATED ALWAYS AS IDENTITY`, same as `users.id`                                                                                                                               |
+| `slug`            | URL identifier, `CHECK (slug ~ '^[a-z0-9]+(-[a-z0-9]+)*$')`, e.g. `pandadev-portfolio`                                                                                                   |
+| `position`        | Display order, ascending, default `0`                                                                                                                                                    |
+| Enumerated `text` | Stored in English, `CHECK (col IN (...))`. The website translates the value with `@nuxtjs/i18n`                                                                                          |
+| URLs              | Validated by the API (Pydantic `HttpUrl`), stored as `text`                                                                                                                              |
 
 ---
 
@@ -40,25 +40,31 @@ People allowed to log in to the private area. **Existing table.**
 
 Public profile of a user. One profile at most per user.
 
-| Field            | Type          | Constraint                                       | Required | Description                                                                         |
-|------------------|---------------|--------------------------------------------------|----------|-------------------------------------------------------------------------------------|
-| `user_id`        | `integer`     | PK, FK → `users.id`, ON DELETE CASCADE           | ✅       | Owner of the profile                                                                |
-| `slug`           | `text`        | UNIQUE, slug format                              | ✅       | Public URL of the portfolio, e.g. `/portfolios/jdoe`                                |
-| `display_name`   | `text`        | —                                                | ✅       | Name shown on the website                                                           |
-| `headline`       | `L10n`        | —                                                | ✅       | Short title, e.g. "Full-stack developer"                                            |
-| `bio`            | `L10n`        | —                                                | ✅       | Presentation text (Markdown)                                                        |
-| `location`       | `text`        | —                                                | ❌       | City or region, e.g. "Lyon, France"                                                 |
-| `contact_email`  | `text`        | —                                                | ❌       | Contact address shown on the portfolio, validated by the API (Pydantic `EmailStr`)  |
-| `contact_phone`  | `text`        | CHECK (`contact_phone ~ '^\+[1-9][0-9]{6,14}$'`) | ❌       | Contact phone number in international format (E.164), e.g. `+33612345678`           |
-| `avatar_id`      | `uuid`        | FK → `media.id`, ON DELETE SET NULL              | ❌       | Profile picture                                                                     |
-| `cv_fr_id`       | `uuid`        | FK → `media.id`, ON DELETE SET NULL              | ❌       | CV in French (PDF), downloadable from the portfolio                                 |
-| `cv_en_id`       | `uuid`        | FK → `media.id`, ON DELETE SET NULL              | ❌       | CV in English (PDF), downloadable from the portfolio                                |
-| `availability`   | `text`        | CHECK (enumerated)                               | ❌       | `open_to_work`, `internship`, `apprenticeship` or `not_available`, shown as a badge |
-| `now`            | `L10n`        | —                                                | ❌       | What the person is working on or learning right now ("Now" section)                 |
-| `now_updated_at` | `timestamptz` | —                                                | ❌       | Last change of `now`, set by the API, shows how fresh the section is                |
-| `updated_at`     | `timestamptz` | DEFAULT `now()`                                  | ✅       | Last change, updated by the API                                                     |
+| Field                  | Type          | Constraint                                       | Required | Description                                                                         |
+|------------------------|---------------|--------------------------------------------------|----------|-------------------------------------------------------------------------------------|
+| `user_id`              | `integer`     | PK, FK → `users.id`, ON DELETE CASCADE           | ✅       | Owner of the profile                                                                |
+| `slug`                 | `text`        | UNIQUE, slug format                              | ✅       | Public URL of the portfolio, e.g. `/portfolios/jdoe`                                |
+| `is_public`            | `boolean`     | DEFAULT `false`                                  | ✅       | `false` = hidden portfolio, only visible to its member in the private area          |
+| `display_name`         | `text`        | —                                                | ✅       | Name shown on the website                                                           |
+| `headline`             | `L10n`        | —                                                | ✅       | Short title, e.g. "Full-stack developer"                                            |
+| `bio`                  | `L10n`        | —                                                | ✅       | Presentation text (Markdown)                                                        |
+| `location`             | `text`        | —                                                | ❌       | City or region, e.g. "Lyon, France"                                                 |
+| `contact_email`        | `text`        | —                                                | ❌       | Contact address shown on the portfolio, validated by the API (Pydantic `EmailStr`)  |
+| `contact_phone`        | `text`        | CHECK (`contact_phone ~ '^\+[1-9][0-9]{6,14}$'`) | ❌       | Contact phone number in international format (E.164), e.g. `+33612345678`           |
+| `contact_form_enabled` | `boolean`     | DEFAULT `true`                                   | ✅       | Shows the contact form on the portfolio, when `contact_email` is set                |
+| `avatar_id`            | `uuid`        | FK → `media.id`, ON DELETE SET NULL              | ❌       | Profile picture                                                                     |
+| `cv_fr_id`             | `uuid`        | FK → `media.id`, ON DELETE SET NULL              | ❌       | CV in French (PDF), downloadable from the portfolio                                 |
+| `cv_en_id`             | `uuid`        | FK → `media.id`, ON DELETE SET NULL              | ❌       | CV in English (PDF), downloadable from the portfolio                                |
+| `availability`         | `text`        | CHECK (enumerated)                               | ❌       | `open_to_work`, `internship`, `apprenticeship` or `not_available`, shown as a badge |
+| `now`                  | `L10n`        | —                                                | ❌       | What the person is working on or learning right now ("Now" section)                 |
+| `now_updated_at`       | `timestamptz` | —                                                | ❌       | Last change of `now`, set by the API, shows how fresh the section is                |
+| `updated_at`           | `timestamptz` | DEFAULT `now()`                                  | ✅       | Last change, updated by the API                                                     |
 
 > ℹ️ `contact_email`, `contact_phone` and the CVs are published only when the member fills them in. They are never included in the page: the website fetches them from the API only when the visitor clicks to show or download them, so that spam bots cannot collect them from the HTML. The API limits these requests per visitor (e.g. 10 per minute). CVs are served by the API itself, never as public files of `uploads/`, because they usually contain the same contact details.
+>
+> ℹ️ A new profile is hidden (`is_public = false`). A hidden portfolio returns a 404 page to visitors and is left out of the header menu, the home page, the portfolio list, the sitemap, the search and the timeline. On group projects, the member's name is still shown, without a link to the portfolio.
+>
+> ℹ️ The contact form sends the message by email to `contact_email`, with the visitor's address as reply-to. The message is never stored in the database (see [Not stored in the database](#not-stored-in-the-database)). Turning the form off hides neither `contact_email` nor `contact_phone`.
 
 ---
 
@@ -159,20 +165,23 @@ Projects shown on the portfolio.
 
 ## Association table: `project_members`
 
-Authors of a project, with the role of each one. A project can have several authors.
+Authors of a project, with the role of each one. A project can have several authors. A co-author is first invited, and only becomes a member once they accept.
 
 | Field        | Type      | Constraint                                | Required | Description                                                   |
 |--------------|-----------|-------------------------------------------|----------|---------------------------------------------------------------|
 | `project_id` | `integer` | PK, FK → `projects.id`, ON DELETE CASCADE | ✅       | Project                                                       |
 | `user_id`    | `integer` | PK, FK → `users.id`, ON DELETE RESTRICT   | ✅       | Author                                                        |
+| `status`     | `text`    | CHECK (enumerated), DEFAULT `'pending'`   | ✅       | `pending` (invitation not answered yet) or `accepted`         |
 | `role`       | `L10n`    | —                                         | ❌       | What the author did on the project, e.g. "Back-end, database" |
 
-> ℹ️ Edit rights: every member of a project can edit it, publish it and see its draft. Other users cannot. This rule is checked by the API, it needs no column.
+> ℹ️ Invitations: the creator of a project is inserted as `accepted`. A co-author is inserted as `pending`, which the private area shows as a badge. Accepting sets `status` to `accepted`; declining deletes the row, so the member can be invited again. A `pending` member is not shown on the project page nor on their portfolio.
 >
-> ℹ️ A project always keeps at least one member. Three rules ensure it:
+> ℹ️ Edit rights: every `accepted` member of a project can edit it, publish it and see its draft. Other users, `pending` members included, cannot. This rule is checked by the API, it needs no extra column.
 >
-> - `ON DELETE RESTRICT` on `user_id`: an account cannot be deleted while it is a member of a project;
-> - a deferred constraint trigger (`DEFERRABLE INITIALLY DEFERRED`), checked at the end of the transaction, after a delete or update on `project_members` and after an insert on `projects`: it raises an error if a project still exists without any member. Being deferred, it lets a whole project be deleted (its members go with it) and lets a project be created then given its creator in the same transaction;
+> ℹ️ A project always keeps at least one `accepted` member. Three rules ensure it:
+>
+> - `ON DELETE RESTRICT` on `user_id`: an account cannot be deleted while it is a member of a project, or has a pending invitation (delete its invitations first);
+> - a deferred constraint trigger (`DEFERRABLE INITIALLY DEFERRED`), checked at the end of the transaction, after a delete or update on `project_members` and after an insert on `projects`: it raises an error if a project still exists without any `accepted` member. Being deferred, it lets a whole project be deleted (its members go with it) and lets a project be created then given its creator in the same transaction;
 > - the API refuses to remove the last member of a project, with a translated error message, before the database is reached.
 
 ---
@@ -224,11 +233,11 @@ Metadata of the uploaded files (images, CV in PDF). The file itself is stored ou
 
 ## Not stored in the database
 
-| Data                                     | Location                                                              | Reason                                                    |
-|------------------------------------------|-----------------------------------------------------------------------|-----------------------------------------------------------|
-| Image and PDF files                      | `uploads/` volume (later: S3 bucket)                                  | Keeps the database and its backups light, files cacheable |
-| Interface texts (buttons, menus, labels) | `web/i18n/locales/*.json`                                             | Part of the code, versioned with it                       |
-| Logo, favicon, design images             | `web/public/`                                                         | Static, change only with the design                       |
-| Secrets (JWT key, database password)     | `.env` files                                                          | Never versioned, never in the database                    |
-| JWT tokens and sessions                  | Sealed cookie (Nuxt session)                                          | Stateless authentication                                  |
-| Contact messages                         | Not collected (visitors use the contact email, phone or social links) | Avoids spam handling and GDPR retention rules             |
+| Data                                     | Location                                                    | Reason                                                                                   |
+|------------------------------------------|-------------------------------------------------------------|------------------------------------------------------------------------------------------|
+| Image and PDF files                      | `uploads/` volume (later: S3 bucket)                        | Keeps the database and its backups light, files cacheable                                |
+| Interface texts (buttons, menus, labels) | `web/i18n/locales/*.json`                                   | Part of the code, versioned with it                                                      |
+| Logo, favicon, design images             | `web/public/`                                               | Static, change only with the design                                                      |
+| Secrets (JWT key, database password)     | `.env` files                                                | Never versioned, never in the database                                                   |
+| JWT tokens and sessions                  | Sealed cookie (Nuxt session)                                | Stateless authentication                                                                 |
+| Contact messages                         | Sent by email to the member's `contact_email`, never stored | No GDPR retention in the database; bots are blocked by a hidden field and a per-IP limit |
