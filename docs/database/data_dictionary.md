@@ -101,20 +101,24 @@ External links of a user. All optional: a user can have no link at all, and one 
 
 Background of a user: professional career, education and personal training.
 
-| Field          | Type      | Constraint                             | Required | Description                                                                                                                  |
-|----------------|-----------|----------------------------------------|----------|------------------------------------------------------------------------------------------------------------------------------|
-| `idExperience` | `integer` | PK, IDENTITY                           | ✅       | Unique identifier                                                                                                            |
-| `idUser`       | `integer` | FK → `users.idUser`, ON DELETE CASCADE | ✅       | Person concerned                                                                                                             |
-| `kind`         | `text`    | CHECK (enumerated)                     | ✅       | `work` (job, internship, apprenticeship), `education` (degree) or `training` (personal training, e.g. TryHackMe, ANSSI MOOC) |
-| `organization` | `text`    | —                                      | ✅       | Company, school, platform or training body                                                                                   |
-| `role`         | `L10n`    | —                                      | ✅       | Job title, degree name, or course or certificate followed                                                                    |
-| `description`  | `L10n`    | —                                      | ✅       | Missions, results (Markdown)                                                                                                 |
-| `location`     | `text`    | —                                      | ❌       | City, `NULL` for online training                                                                                             |
-| `url`          | `text`    | —                                      | ❌       | Link to a certificate or a public profile (e.g. TryHackMe)                                                                   |
-| `start_on`     | `date`    | —                                      | ✅       | Start date                                                                                                                   |
-| `end_on`       | `date`    | CHECK (`end_on >= start_on`)           | ❌       | End date, `NULL` = ongoing                                                                                                   |
+| Field               | Type      | Constraint                             | Required | Description                                                                                                                      |
+|---------------------|-----------|----------------------------------------|----------|----------------------------------------------------------------------------------------------------------------------------------|
+| `idExperience`      | `integer` | PK, IDENTITY                           | ✅       | Unique identifier                                                                                                                |
+| `idUser`            | `integer` | FK → `users.idUser`, ON DELETE CASCADE | ✅       | Person concerned                                                                                                                 |
+| `kind`              | `text`    | CHECK (enumerated)                     | ✅       | `work` (job, internship, apprenticeship), `education` (degree) or `training` (personal training, e.g. TryHackMe, ANSSI MOOC)     |
+| `organization`      | `text`    | —                                      | ✅       | Company, school, platform or training body                                                                                       |
+| `title`             | `L10n`    | —                                      | ✅       | Job title (e.g. "Security engineer"), degree name, or course or certificate followed (e.g. "Learn Docker")                       |
+| `employment_status` | `text`    | CHECK (enumerated), `work` only        | ❌       | `employee`, `supervisor` (agent de maîtrise) or `executive` (cadre)                                                              |
+| `contract_type`     | `text`    | CHECK (enumerated), `work` only        | ❌       | `permanent` (CDI), `fixed_term` (CDD), `apprenticeship` (alternance), `internship` (stage), `temporary` (intérim) or `freelance` |
+| `description`       | `L10n`    | —                                      | ✅       | Missions, results (Markdown)                                                                                                     |
+| `location`          | `text`    | —                                      | ❌       | City, `NULL` for online training                                                                                                 |
+| `url`               | `text`    | —                                      | ❌       | Link to a certificate or a public profile (e.g. TryHackMe)                                                                       |
+| `start_on`          | `date`    | —                                      | ✅       | Start date                                                                                                                       |
+| `end_on`            | `date`    | CHECK (`end_on >= start_on`)           | ❌       | End date, `NULL` = ongoing                                                                                                       |
 
 > ℹ️ A single table for the three kinds: they share the same columns, and the timeline sorts the whole background with one query. The portfolio shows one section per `kind`.
+>
+> ℹ️ `employment_status` and `contract_type` only apply to `work`: `CHECK (kind = 'work' OR (employment_status IS NULL AND contract_type IS NULL))` rejects them for `education` and `training`. Both stay optional for `work`, and the website shows them as badges.
 
 ---
 

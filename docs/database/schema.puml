@@ -115,7 +115,9 @@ package "People" #DDE8F8 {
         idUser : integer <<FK>>
         kind : text  // work | education | training
         organization : text
-        role : L10n
+        title : L10n  // job, degree or course
+        employment_status : text <<nullable>>  // work only: employee | supervisor | executive
+        contract_type : text <<nullable>>  // work only: permanent | fixed_term | apprenticeship | internship | temporary | freelance
         description : L10n
         location : text <<nullable>>
         url : text <<nullable>>  // certificate or profile
