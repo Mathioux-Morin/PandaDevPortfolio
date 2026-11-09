@@ -1,4 +1,4 @@
-# Copyright (c) 2026 MORIN Mathieu, Mathias GARAIOS
+# Copyright (c) 2026 Mathieu MORIN, Mathias GARAIOS
 # SPDX-License-Identifier: MIT
 """Tests of the POST /auth/token route."""
 
