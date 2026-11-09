@@ -125,6 +125,11 @@ package "People" #DDE8F8 {
         end_on : date <<nullable>>
     }
 
+    entity involves {
+        **idExperience** : integer <<PK, FK>>
+        **idSkill** : integer <<PK, FK>>
+    }
+
     entity masters {
         **idUser** : integer <<PK, FK>>
         **idSkill** : integer <<PK, FK>>
@@ -216,6 +221,8 @@ profiles "0..*" -- "0..3" media : avatar, CV (fr, en)
 (profiles, media) .. attaches
 users "0..*" -- "0..*" skills
 (users, skills) .. masters
+experiences "0..*" -- "0..*" skills
+(experiences, skills) .. involves
 users "1..*" -- "0..*" projects : member
 (users, projects) .. works_on
 skills "0..*" -- "0..*" projects

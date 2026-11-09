@@ -122,6 +122,19 @@ Background of a user: professional career, education and personal training.
 
 ---
 
+## Association table: `involves`
+
+Skills used during a job, or learned during a degree or a training.
+
+| Field          | Type      | Constraint                                             | Required | Description           |
+|----------------|-----------|--------------------------------------------------------|----------|-----------------------|
+| `idExperience` | `integer` | PK, FK → `experiences.idExperience`, ON DELETE CASCADE | ✅       | Experience            |
+| `idSkill`      | `integer` | PK, FK → `skills.idSkill`, ON DELETE CASCADE           | ✅       | Skill used or learned |
+
+> ℹ️ A skill linked to an experience does not have to be in the member's `masters`: the background shows what was used, the skills section shows the self-assessed level.
+
+---
+
 ## Association table: `masters`
 
 Skills mastered by a user, with a self-assessed score.
