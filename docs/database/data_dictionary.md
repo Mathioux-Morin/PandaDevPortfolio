@@ -55,6 +55,7 @@ Public profile of a user. One profile at most per user.
 | `availability`         | `text`        | CHECK (enumerated)                               | ❌       | `open_to_work`, `internship`, `apprenticeship` or `not_available`, shown as a badge |
 | `now`                  | `L10n`        | —                                                | ❌       | What the person is working on or learning right now ("Now" section)                 |
 | `now_updated_at`       | `timestamptz` | —                                                | ❌       | Last change of `now`, set by the API, shows how fresh the section is                |
+| `created_at`           | `timestamptz` | DEFAULT `now()`                                  | ✅       | Creation of the profile, never changed, e.g. shown as "member since 2025"           |
 | `updated_at`           | `timestamptz` | DEFAULT `now()`                                  | ✅       | Last change, updated by the API                                                     |
 
 > ℹ️ `contact_email`, `contact_phone` and the CVs are published only when the member fills them in. They are never included in the page: the website fetches them from the API only when the visitor clicks to show or download them, so that spam bots cannot collect them from the HTML. The API limits these requests per visitor (e.g. 10 per minute). CVs are served by the API itself, never as public files of `uploads/`, because they usually contain the same contact details.

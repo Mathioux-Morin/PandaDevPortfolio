@@ -90,6 +90,7 @@ package "People" #DDE8F8 {
         availability : text <<nullable>>  // open_to_work | internship | apprenticeship | not_available
         now : L10n <<nullable>>  // what the person is working on
         now_updated_at : timestamptz <<nullable>>
+        created_at : timestamptz
         updated_at : timestamptz
     }
 
