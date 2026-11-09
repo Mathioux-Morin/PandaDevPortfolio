@@ -179,8 +179,8 @@ package "Catalog" #DDE8F8 {
     entity skills {
         **idSkill** : integer <<PK>>
         --
-        name : text <<unique>>
-        category : text  // language | framework | database | tool | ai
+        name : L10n <<unique fr>>  // e.g. Python, Teamwork
+        category : text  // language | framework | database | tool | ai | domain | method | design | art | soft_skill
         icon : text <<nullable>>  // e.g. i-simple-icons-python
     }
 }

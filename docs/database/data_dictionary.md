@@ -149,16 +149,31 @@ Skills mastered by a user, with a self-assessed score.
 
 ## Table: `skills`
 
-Shared catalog of skills, used by both the profiles (`masters`) and the projects (`uses`).
+Shared catalog of skills, technical or not, used by both the profiles (`masters`) and the projects (`uses`).
 
-| Field      | Type      | Constraint         | Required | Description                                              |
-|------------|-----------|--------------------|----------|----------------------------------------------------------|
-| `idSkill`  | `integer` | PK, IDENTITY       | ✅       | Unique identifier                                        |
-| `name`     | `text`    | UNIQUE             | ✅       | Name, e.g. `Python`, `Nuxt`, `PostgreSQL`, `Claude Code` |
-| `category` | `text`    | CHECK (enumerated) | ✅       | `language`, `framework`, `database`, `tool` or `ai`      |
-| `icon`     | `text`    | —                  | ❌       | Iconify icon name, e.g. `i-simple-icons-python`          |
+| Field      | Type      | Constraint                    | Required | Description                                                                    |
+|------------|-----------|-------------------------------|----------|--------------------------------------------------------------------------------|
+| `idSkill`  | `integer` | PK, IDENTITY                  | ✅       | Unique identifier                                                              |
+| `name`     | `L10n`    | UNIQUE index on `name->>'fr'` | ✅       | Name, e.g. `{"fr": "Python"}`, `{"fr": "Travail en équipe", "en": "Teamwork"}` |
+| `category` | `text`    | CHECK (enumerated)            | ✅       | One of the categories below                                                    |
+| `icon`     | `text`    | —                             | ❌       | Iconify icon name, e.g. `i-simple-icons-python`, `i-lucide-camera`             |
 
-> ℹ️ `category` lets the website group the skills and show AI tools apart from languages and frameworks.
+> ℹ️ `category` lets the website group the skills, e.g. show AI tools apart from languages and frameworks:
+>
+> | `category`   | Group                    | Examples                                   |
+> |--------------|--------------------------|--------------------------------------------|
+> | `language`   | Programming language     | Python, TypeScript, SQL                    |
+> | `framework`  | Framework or library     | Nuxt, FastAPI, Tailwind CSS                |
+> | `database`   | Database                 | PostgreSQL, Redis                          |
+> | `tool`       | Tool                     | Docker, Git, Figma                         |
+> | `ai`         | AI tool                  | Claude Code                                |
+> | `domain`     | Field of expertise       | Cybersecurity, pentest, networking         |
+> | `method`     | Method or practice       | Scrum, TDD, CI/CD                          |
+> | `design`     | Design                   | UI/UX design, graphic design               |
+> | `art`        | Art and creation         | Drawing, photography, video editing, music |
+> | `soft_skill` | Soft skill (savoir-être) | Teamwork, communication, autonomy          |
+>
+> ℹ️ `name` is translated because the non-technical skills are common words ("Travail en équipe" / "Teamwork"). Technical names like Python only fill `fr`, and the website falls back to it in English. The `category` labels are translated by the website.
 
 ---
 
