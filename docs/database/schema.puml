@@ -68,7 +68,7 @@ endlegend
 
 package "People" #DDE8F8 {
     entity users <<existing>> {
-        **id** : integer <<PK>>
+        **idUser** : integer <<PK>>
         --
         login : text <<unique>>
         password_hash : text
@@ -76,7 +76,7 @@ package "People" #DDE8F8 {
     }
 
     entity profiles {
-        **user_id** : integer <<PK, FK>>
+        **idUser** : integer <<PK, FK>>
         --
         slug : text <<unique>>
         is_public : boolean  // false = hidden portfolio
@@ -87,9 +87,9 @@ package "People" #DDE8F8 {
         contact_email : text <<nullable>>
         contact_phone : text <<nullable>>  // international format, e.g. +33612345678
         contact_form_enabled : boolean
-        avatar_id : uuid <<FK, nullable>>
-        cv_fr_id : uuid <<FK, nullable>>  // PDF
-        cv_en_id : uuid <<FK, nullable>>  // PDF
+        idAvatar : uuid <<FK, nullable>>
+        idCvFr : uuid <<FK, nullable>>  // PDF
+        idCvEn : uuid <<FK, nullable>>  // PDF
         availability : text <<nullable>>  // open_to_work | internship | apprenticeship | not_available
         now : L10n <<nullable>>  // what the person is working on
         now_updated_at : timestamptz <<nullable>>
@@ -97,18 +97,18 @@ package "People" #DDE8F8 {
     }
 
     entity social_links {
-        **id** : integer <<PK>>
+        **idSocialLink** : integer <<PK>>
         --
-        user_id : integer <<FK>>
+        idUser : integer <<FK>>
         kind : text  // github | discord | youtube | linkedin
         url : text
         position : integer
     }
 
     entity experiences {
-        **id** : integer <<PK>>
+        **idExperience** : integer <<PK>>
         --
-        user_id : integer <<FK>>
+        idUser : integer <<FK>>
         kind : text  // work | education
         organization : text
         role : L10n
@@ -119,8 +119,8 @@ package "People" #DDE8F8 {
     }
 
     entity user_technologies {
-        **user_id** : integer <<PK, FK>>
-        **technology_id** : integer <<PK, FK>>
+        **idUser** : integer <<PK, FK>>
+        **idTechnology** : integer <<PK, FK>>
         --
         score : smallint  // CHECK 0..100
         level : text <<generated>>  // from score
@@ -130,13 +130,13 @@ package "People" #DDE8F8 {
 
 package "Projects" #DDE8F8 {
     entity projects {
-        **id** : integer <<PK>>
+        **idProject** : integer <<PK>>
         --
         slug : text <<unique>>
         title : L10n
         summary : L10n
         content : L10n <<nullable>>  // Markdown
-        cover_id : uuid <<FK, nullable>>
+        idCover : uuid <<FK, nullable>>
         repo_url : text <<nullable>>
         demo_url : text <<nullable>>
         started_on : date
@@ -148,29 +148,29 @@ package "Projects" #DDE8F8 {
     }
 
     entity project_members {
-        **project_id** : integer <<PK, FK>>
-        **user_id** : integer <<PK, FK>>
+        **idProject** : integer <<PK, FK>>
+        **idUser** : integer <<PK, FK>>
         --
         status : text  // pending | accepted
         role : L10n <<nullable>>  // e.g. back-end, database
     }
 
     entity project_media {
-        **project_id** : integer <<PK, FK>>
-        **media_id** : uuid <<PK, FK>>
+        **idProject** : integer <<PK, FK>>
+        **idMedia** : uuid <<PK, FK>>
         --
         position : integer
     }
 
     entity project_technologies {
-        **project_id** : integer <<PK, FK>>
-        **technology_id** : integer <<PK, FK>>
+        **idProject** : integer <<PK, FK>>
+        **idTechnology** : integer <<PK, FK>>
     }
 }
 
 package "Catalog" #DDE8F8 {
     entity technologies {
-        **id** : integer <<PK>>
+        **idTechnology** : integer <<PK>>
         --
         name : text <<unique>>
         category : text  // language | framework | database | tool | ai
@@ -180,9 +180,9 @@ package "Catalog" #DDE8F8 {
 
 package "Files" #DDE8F8 {
     entity media {
-        **id** : uuid <<PK>>
+        **idMedia** : uuid <<PK>>
         --
-        owner_id : integer <<FK, nullable>>
+        idOwner : integer <<FK, nullable>>
         storage_key : text <<unique>>  // file in uploads/ or S3
         mime_type : text
         width : integer <<nullable>>
