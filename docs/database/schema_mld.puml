@@ -2,7 +2,7 @@
 ' SPDX-License-Identifier: MIT
 '
 ' Portfolio database schema (PostgreSQL).
-' Light blue table: already created by db/init/. Other tables: proposed.
+' Every table is created by db/init/.
 ' Field details: docs/database/data_dictionary.md (keep both files in sync).
 ' Render: plantuml -tsvg docs/database/schema_mld.puml
 
@@ -17,7 +17,6 @@ skinparam class {
     AttributeFontColor #1F4E79
     HeaderBackgroundColor #2E75B6
     HeaderFontColor #FFFFFF
-    BackgroundColor<<existing>> #D5E8F0
 }
 ' Recent PlantUML versions ignore HeaderFontColor: set it with a style instead.
 <style>
@@ -25,11 +24,6 @@ classDiagram {
     class {
         header {
             FontColor #FFFFFF
-        }
-    }
-    .existing {
-        header {
-            FontColor #1F4E79
         }
     }
 }
@@ -58,7 +52,6 @@ skinparam linetype ortho
 legend top right
     **PK** primary key, **FK** foreign key
     **L10n** = jsonb {"fr": "...", "en": "..."}, "en" optional (French fallback)
-    <<existing>>: table already in db/init/
     **level**: 0-24 beginner, 25-49 intermediate, 50-74 advanced, 75-100 expert
     Filled diamond: composition (ON DELETE CASCADE)
     Empty diamond: aggregation (ON DELETE SET NULL)
@@ -67,12 +60,12 @@ legend top right
 endlegend
 
 package "People" #DDE8F8 {
-    entity users <<existing>> {
+    entity users {
         **idUser** : integer <<PK>>
         --
         login : text <<unique>>
         password_hash : text
-        password_changed_at : timestamptz  // to add (migration)
+        password_changed_at : timestamptz
     }
 
     entity profiles {

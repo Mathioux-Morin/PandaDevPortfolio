@@ -2,26 +2,27 @@
 
 ## _PandaDev Portfolio — PostgreSQL database_
 
-Companion of the diagram [`schema_mld.puml`](schema_mld.puml): both files must be updated together. Only `users` exists today ([`db/init/01_users.sql`](../../db/init/01_users.sql)), the other tables are proposed.
+Companion of the diagram [`schema_mld.puml`](schema_mld.puml): both files must be updated together. Every table is created by [`db/init/`](../../db/init): tables, domains and indexes in `01_tables.sql`, trigger functions in `02_functions.sql`, triggers in `03_triggers.sql`, reference data in `04_data.sql`.
 
 ---
 
 ## Conventions
 
-| Notation          | Meaning                                                                                                                                                                                  |
-|-------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `L10n`            | `jsonb` holding one text per locale: `{"fr": "...", "en": "..."}`. `CHECK (col ? 'fr')`: French is required, English is optional and the website falls back to French when it is missing |
-| `IDENTITY`        | `integer GENERATED ALWAYS AS IDENTITY`, same as `users.idUser`                                                                                                                           |
-| `slug`            | URL identifier, `CHECK (slug ~ '^[a-z0-9]+(-[a-z0-9]+)*$')`, e.g. `pandadev-portfolio`                                                                                                   |
-| `position`        | Display order, ascending, default `0`                                                                                                                                                    |
-| Enumerated `text` | Stored in English, `CHECK (col IN (...))`. The website translates the value with `@nuxtjs/i18n`                                                                                          |
-| URLs              | Validated by the API (Pydantic `HttpUrl`), stored as `text`                                                                                                                              |
+| Notation             | Meaning                                                                                                                                                                        |
+|----------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `L10n`               | Domain `l10n` over `jsonb`, one text per locale: `{"fr": "...", "en": "..."}`. French is required, English is optional and the website falls back to French when it is missing |
+| `IDENTITY`           | `integer GENERATED ALWAYS AS IDENTITY`, same as `users.idUser`                                                                                                                 |
+| `slug`               | Domain `slug` over `text`, `CHECK (VALUE ~ '^[a-z0-9]+(-[a-z0-9]+)*$')`, e.g. `pandadev-portfolio`                                                                             |
+| `position`           | Display order, ascending, default `0`                                                                                                                                          |
+| Enumerated `text`    | Stored in English, `CHECK (col IN (...))`. The website translates the value with `@nuxtjs/i18n`                                                                                |
+| URLs                 | Validated by the API (Pydantic `HttpUrl`), stored as `text`                                                                                                                    |
+| `idUser`, `idSkill`… | Identifiers are not quoted in SQL, so PostgreSQL stores them in lowercase: `iduser`, `idskill`…                                                                                |
 
 ---
 
 ## Table: `users`
 
-People allowed to log in to the private area. **Existing table.**
+People allowed to log in to the private area.
 
 | Field                 | Type          | Constraint      | Required | Description                                                               |
 |-----------------------|---------------|-----------------|----------|---------------------------------------------------------------------------|
@@ -32,7 +33,7 @@ People allowed to log in to the private area. **Existing table.**
 
 > ℹ️ The password itself is never stored. bcrypt only uses the first 72 bytes of the password.
 >
-> ℹ️ `password_changed_at` is a column to add to the existing table (migration). After a password change, every other session is logged out, since JWT tokens cannot be revoked one by one.
+> ℹ️ After a password change, every other session is logged out, since JWT tokens cannot be revoked one by one.
 
 ---
 
@@ -154,22 +155,39 @@ Reference table of the link kinds used by `social_links` and `experience_links`:
 | `url_pattern` | `text` | —          | ✅       | PostgreSQL regular expression the URL must match |
 | `icon`        | `text` | —          | ✅       | Iconify icon name                                |
 
-Initial data:
+Initial data, inserted by `04_data.sql`:
 
 ```sql
 INSERT INTO link_kinds (kind, url_pattern, icon) VALUES
-  ('website',     '^https://[^/\s]+\.[^/\s]+',                                        'i-lucide-globe'),
-  ('certificate', '^https://[^/\s]+\.[^/\s]+',                                        'i-lucide-award'),
-  ('github',      '^https://github\.com/[A-Za-z0-9-]+(/[A-Za-z0-9._-]+)?/?$',         'i-simple-icons-github'),
-  ('gitlab',      '^https://gitlab\.com/[A-Za-z0-9._-]+(/[A-Za-z0-9._-]+)*/?$',       'i-simple-icons-gitlab'),
-  ('linkedin',    '^https://([a-z]{2,3}\.)?linkedin\.com/(in|company|school)/[^/?#]+/?$', 'i-lucide-linkedin'),
-  ('youtube',     '^https://(www\.|m\.)?(youtube\.com|youtu\.be)/',                    'i-simple-icons-youtube'),
-  ('discord',     '^https://(discord\.gg|discord\.com/(invite|users))/[A-Za-z0-9]+/?$', 'i-simple-icons-discord'),
-  ('instagram',   '^https://(www\.)?instagram\.com/[A-Za-z0-9._]+/?$',                 'i-simple-icons-instagram'),
-  ('x',           '^https://(www\.)?(x|twitter)\.com/[A-Za-z0-9_]+/?$',                'i-simple-icons-x'),
-  ('artstation',  '^https://([A-Za-z0-9-]+\.)?artstation\.com(/|$)',                   'i-simple-icons-artstation'),
-  ('behance',     '^https://(www\.)?behance\.net/[A-Za-z0-9_-]+',                      'i-simple-icons-behance'),
-  ('tryhackme',   '^https://tryhackme\.com/',                                          'i-simple-icons-tryhackme');
+    ('website',     '^https://[^/\s]+\.[^/\s]+',                                               'i-lucide-globe'),
+    ('certificate', '^https://[^/\s]+\.[^/\s]+',                                               'i-lucide-award'),
+    ('github',      '^https://github\.com/[A-Za-z0-9-]+(/[A-Za-z0-9._-]+)?/?$',                'i-simple-icons-github'),
+    ('gitlab',      '^https://gitlab\.com/[A-Za-z0-9._-]+(/[A-Za-z0-9._-]+)*/?$',              'i-simple-icons-gitlab'),
+    ('linkedin',    '^https://([a-z]{2,3}\.)?linkedin\.com/(in|company|school)/[^/?#]+/?$',    'i-lucide-linkedin'),
+    ('youtube',     '^https://(www\.|m\.)?(youtube\.com|youtu\.be)/',                          'i-simple-icons-youtube'),
+    ('discord',     '^https://(discord\.gg|discord\.com/(invite|users))/[A-Za-z0-9]+/?$',      'i-simple-icons-discord'),
+    ('instagram',   '^https://(www\.)?instagram\.com/[A-Za-z0-9._]+/?$',                       'i-simple-icons-instagram'),
+    ('x',           '^https://(www\.)?(x|twitter)\.com/[A-Za-z0-9_]+/?$',                      'i-simple-icons-x'),
+    ('artstation',  '^https://([A-Za-z0-9-]+\.)?artstation\.com(/|$)',                         'i-simple-icons-artstation'),
+    ('behance',     '^https://(www\.)?behance\.net/[A-Za-z0-9_-]+',                            'i-simple-icons-behance'),
+    ('tryhackme',   '^https://tryhackme\.com/',                                                'i-simple-icons-tryhackme'),
+    ('flickr',      '^https://(www\.)?(flickr\.com|flic\.kr)/',                                'i-simple-icons-flickr'),
+    ('kofi',        '^https://(www\.)?ko-fi\.com/[A-Za-z0-9_]+/?$',                            'i-simple-icons-kofi'),
+    ('patreon',     '^https://(www\.)?patreon\.com/[^/?#]+',                                   'i-simple-icons-patreon'),
+    -- No Tipeee icon in simple-icons.
+    ('tipeee',      '^https://([a-z]{2}\.)?tipeee\.com/[^/?#]+',                               'i-lucide-hand-coins'),
+    ('paypal',      '^https://(www\.)?(paypal\.me|paypal\.com)/',                              'i-simple-icons-paypal'),
+    ('trustpilot',  '^https://([a-z]{2}\.|www\.)?trustpilot\.com/review/',                     'i-simple-icons-trustpilot'),
+    ('distrokid',   '^https://(www\.)?distrokid\.com/',                                        'i-simple-icons-distrokid'),
+    ('spotify',     '^https://open\.spotify\.com/',                                            'i-simple-icons-spotify'),
+    ('apple_music', '^https://music\.apple\.com/',                                             'i-simple-icons-applemusic'),
+    ('deezer',      '^https://(([a-z]+\.)?deezer\.com|deezer\.page\.link)/',                   'i-simple-icons-deezer'),
+    ('facebook',    '^https://((www|m|web)\.)?(facebook|fb)\.com/',                            'i-simple-icons-facebook'),
+    ('canva',       '^https://((www\.)?canva\.com|([A-Za-z0-9-]+\.)+canva\.site)(/|$)',        'i-simple-icons-canva'),
+    ('wordpress',   '^https://([A-Za-z0-9-]+\.)?wordpress\.(com|org)(/|$)',                    'i-simple-icons-wordpress'),
+    ('shopify',     '^https://([A-Za-z0-9-]+\.)?(myshopify|shopify)\.com(/|$)',                'i-simple-icons-shopify'),
+    ('notion',      '^https://(([A-Za-z0-9-]+\.)?notion\.site|(www\.)?notion\.(so|com))(/|$)', 'i-simple-icons-notion'),
+    ('fiverr',      '^https://(www\.)?fiverr\.com/[A-Za-z0-9_]+',                              'i-simple-icons-fiverr');
 ```
 
 > ℹ️ A trigger `BEFORE INSERT OR UPDATE OF kind, url` on `social_links` and `experience_links` raises an error when `url !~ url_pattern` of the row's kind: a CHECK constraint cannot read another table. The API applies the same patterns first, to show a translated error message in the form.

@@ -61,11 +61,11 @@ Trois composants, versionnés dans le même dépôt :
 | Apparence        | Palette de couleurs PandaDev (Radix), mode clair / sombre, en-tête responsive                                                                                        |
 | Pages publiques  | Accueil, Projets et À propos créées, sans contenu                                                                                                                    |
 | Portfolios       | Une page par membre, avec la structure de sa mise en page propre (layout, en-tête, hero) et des composants communs (projets, parcours, technos, liens), encore vides |
-| Base de données  | Table `users` créée ; schéma complet proposé ([schema_mld.puml](../database/schema_mld.puml), [dictionnaire de données](../database/data_dictionary.md))             |
+| Base de données  | Toutes les tables du schéma créées ([schema_mld.puml](../database/schema_mld.puml), [dictionnaire de données](../database/data_dictionary.md))                       |
 
 ### 2.2 Reste à faire
 
-- Créer les tables du schéma proposé et les routes de l'API correspondantes ;
+- Créer les routes de l'API correspondant au schéma de la base ;
 - Afficher les contenus sur les pages publiques ;
 - Construire les formulaires de saisie de l'espace privé ;
 - Mettre en place le stockage des images ;

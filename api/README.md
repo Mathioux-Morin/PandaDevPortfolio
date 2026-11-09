@@ -50,7 +50,7 @@ FastAPI REST API of the PandaDev portfolio. It manages the data of each person s
 
 ## Database
 
-The PostgreSQL 18 database runs in a container defined in [`db/`](../db). The scripts in [`db/init/`](../db/init) create the tables on first start.
+The PostgreSQL 18 database runs in a container defined in [`db/`](../db). The scripts in [`db/init/`](../db/init) create the tables on first start, in the order of their number prefix: tables, functions, triggers, reference data.
 
 ```bash
 cd ../db
@@ -64,15 +64,24 @@ docker compose ps             # wait for the "healthy" status
 > * If port `5432` is already in use (another PostgreSQL), change `POSTGRES_PORT` in `db/.env` and the port of `DATABASE_URL` in `api/.env` (e.g. `5433`).
 > * The init scripts only run when the data volume is empty. To run them again: `docker compose down -v` (**deletes all data**).
 
+**Without Docker** (existing PostgreSQL 18 server, empty database): run every script in the order of its number prefix, from the root of the repository. `ON_ERROR_STOP` stops at the first error instead of running the next commands.
+
+```bash
+for f in db/init/*.sql; do psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f "$f" || break; done
+```
+
 ### `users`
 
 People allowed to log in. Accounts are not created through the API: they are added directly in the database.
 
-| Column          | Type          | Description                                  |
-|-----------------|---------------|----------------------------------------------|
-| `id`            | integer (PK)  | Auto-incremented id, carried by the token    |
-| `login`         | text (unique) | Login                                        |
-| `password_hash` | text          | bcrypt hash of the password (via `pgcrypto`) |
+| Column                | Type          | Description                                  |
+|-----------------------|---------------|----------------------------------------------|
+| `idUser`              | integer (PK)  | Auto-incremented id, carried by the token    |
+| `login`               | text (unique) | Login                                        |
+| `password_hash`       | text          | bcrypt hash of the password (via `pgcrypto`) |
+| `password_changed_at` | timestamptz   | Last password change                         |
+
+The other tables are described in the [data dictionary](../docs/database/data_dictionary.md).
 
 **Add a user:**
 
@@ -192,7 +201,7 @@ The token only carries the user id:
 
 | Claim | Description                  |
 |-------|------------------------------|
-| `sub` | User id (`users.id`)         |
+| `sub` | User id (`users.idUser`)     |
 | `iss` | Issuer: `pandadev-portfolio` |
 | `iat` | Issued at                    |
 | `exp` | Expiration date              |
