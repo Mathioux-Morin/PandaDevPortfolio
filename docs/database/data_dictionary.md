@@ -87,16 +87,16 @@ Files used by a profile: profile picture and CVs. One file at most per kind.
 
 External links of a user, shown on their portfolio. All optional: a user can have no link at all, or several links of the same kind (e.g. two YouTube channels).
 
-| Field          | Type      | Constraint                             | Required | Description                                                                          |
-|----------------|-----------|----------------------------------------|----------|--------------------------------------------------------------------------------------|
-| `idSocialLink` | `integer` | PK, IDENTITY                           | ✅       | Unique identifier                                                                    |
-| `idUser`       | `integer` | FK → `users.idUser`, ON DELETE CASCADE | ✅       | Owner of the link                                                                    |
-| `kind`         | `text`    | CHECK (enumerated)                     | ✅       | Picks the icon, see the list below                                                   |
-| `url`          | `text`    | —                                      | ✅       | Link target                                                                          |
-| `label`        | `text`    | —                                      | ❌       | Tells apart two links of the same kind, e.g. "Tutorials channel", shown as a tooltip |
-| `position`     | `integer` | DEFAULT `0`                            | ✅       | Display order                                                                        |
+| Field          | Type      | Constraint                                                                  | Required | Description                                                                          |
+|----------------|-----------|-----------------------------------------------------------------------------|----------|--------------------------------------------------------------------------------------|
+| `idSocialLink` | `integer` | PK, IDENTITY                                                                | ✅       | Unique identifier                                                                    |
+| `idUser`       | `integer` | FK → `users.idUser`, ON DELETE CASCADE                                      | ✅       | Owner of the link                                                                    |
+| `kind`         | `text`    | FK → `link_kinds.kind`, ON DELETE RESTRICT, CHECK (`kind <> 'certificate'`) | ✅       | Picks the icon and the URL pattern                                                   |
+| `url`          | `text`    | —                                                                           | ✅       | Link target                                                                          |
+| `label`        | `text`    | —                                                                           | ❌       | Tells apart two links of the same kind, e.g. "Tutorials channel", shown as a tooltip |
+| `position`     | `integer` | DEFAULT `0`                                                                 | ✅       | Display order                                                                        |
 
-> ℹ️ Link kinds, shared with [`experience_links`](#table-experience_links): `website`, `github`, `gitlab`, `linkedin`, `youtube`, `discord`, `instagram`, `x`, `artstation`, `behance`, `tryhackme`. A network missing from the list uses `website` with a `label`.
+> ℹ️ The link kinds and their URL patterns are in [`link_kinds`](#table-link_kinds), shared with `experience_links`. A network missing from the list uses `website` with a `label`. `certificate` is reserved to the experiences.
 
 ---
 
@@ -130,16 +130,52 @@ Background of a user: professional career, education and personal training.
 
 Links of an experience, e.g. the website or YouTube channel of a company, the TryHackMe website, a certificate. All optional, several per kind allowed.
 
-| Field              | Type      | Constraint                                         | Required | Description                                                                              |
-|--------------------|-----------|----------------------------------------------------|----------|------------------------------------------------------------------------------------------|
-| `idExperienceLink` | `integer` | PK, IDENTITY                                       | ✅       | Unique identifier                                                                        |
-| `idExperience`     | `integer` | FK → `experiences.idExperience`, ON DELETE CASCADE | ✅       | Experience concerned                                                                     |
-| `kind`             | `text`    | CHECK (enumerated)                                 | ✅       | Same kinds as [`social_links`](#table-social_links), plus `certificate` (picks the icon) |
-| `url`              | `text`    | —                                                  | ✅       | Link target                                                                              |
-| `label`            | `text`    | —                                                  | ❌       | Tells apart two links of the same kind, shown as a tooltip                               |
-| `position`         | `integer` | DEFAULT `0`                                        | ✅       | Display order                                                                            |
+| Field              | Type      | Constraint                                         | Required | Description                                                |
+|--------------------|-----------|----------------------------------------------------|----------|------------------------------------------------------------|
+| `idExperienceLink` | `integer` | PK, IDENTITY                                       | ✅       | Unique identifier                                          |
+| `idExperience`     | `integer` | FK → `experiences.idExperience`, ON DELETE CASCADE | ✅       | Experience concerned                                       |
+| `kind`             | `text`    | FK → `link_kinds.kind`, ON DELETE RESTRICT         | ✅       | Picks the icon and the URL pattern, `certificate` included |
+| `url`              | `text`    | —                                                  | ✅       | Link target                                                |
+| `label`            | `text`    | —                                                  | ❌       | Tells apart two links of the same kind, shown as a tooltip |
+| `position`         | `integer` | DEFAULT `0`                                        | ✅       | Display order                                              |
 
 > ℹ️ Kept apart from `social_links`: a company channel is not a link of the member, and the links of an experience are deleted with it.
+
+---
+
+## Table: `link_kinds`
+
+Reference table of the link kinds used by `social_links` and `experience_links`: icon and URL pattern of each kind.
+
+| Field         | Type   | Constraint | Required | Description                                      |
+|---------------|--------|------------|----------|--------------------------------------------------|
+| `kind`        | `text` | PK         | ✅       | Kind identifier, e.g. `github`                   |
+| `url_pattern` | `text` | —          | ✅       | PostgreSQL regular expression the URL must match |
+| `icon`        | `text` | —          | ✅       | Iconify icon name                                |
+
+Initial data:
+
+```sql
+INSERT INTO link_kinds (kind, url_pattern, icon) VALUES
+  ('website',     '^https://[^/\s]+\.[^/\s]+',                                        'i-lucide-globe'),
+  ('certificate', '^https://[^/\s]+\.[^/\s]+',                                        'i-lucide-award'),
+  ('github',      '^https://github\.com/[A-Za-z0-9-]+(/[A-Za-z0-9._-]+)?/?$',         'i-simple-icons-github'),
+  ('gitlab',      '^https://gitlab\.com/[A-Za-z0-9._-]+(/[A-Za-z0-9._-]+)*/?$',       'i-simple-icons-gitlab'),
+  ('linkedin',    '^https://([a-z]{2,3}\.)?linkedin\.com/(in|company|school)/[^/?#]+/?$', 'i-lucide-linkedin'),
+  ('youtube',     '^https://(www\.|m\.)?(youtube\.com|youtu\.be)/',                    'i-simple-icons-youtube'),
+  ('discord',     '^https://(discord\.gg|discord\.com/(invite|users))/[A-Za-z0-9]+/?$', 'i-simple-icons-discord'),
+  ('instagram',   '^https://(www\.)?instagram\.com/[A-Za-z0-9._]+/?$',                 'i-simple-icons-instagram'),
+  ('x',           '^https://(www\.)?(x|twitter)\.com/[A-Za-z0-9_]+/?$',                'i-simple-icons-x'),
+  ('artstation',  '^https://([A-Za-z0-9-]+\.)?artstation\.com(/|$)',                   'i-simple-icons-artstation'),
+  ('behance',     '^https://(www\.)?behance\.net/[A-Za-z0-9_-]+',                      'i-simple-icons-behance'),
+  ('tryhackme',   '^https://tryhackme\.com/',                                          'i-simple-icons-tryhackme');
+```
+
+> ℹ️ A trigger `BEFORE INSERT OR UPDATE OF kind, url` on `social_links` and `experience_links` raises an error when `url !~ url_pattern` of the row's kind: a CHECK constraint cannot read another table. The API applies the same patterns first, to show a translated error message in the form.
+>
+> ℹ️ The patterns mostly check the domain: a pattern too strict would reject valid URLs (a YouTube playlist, a LinkedIn company page). Changing a pattern does not recheck the existing links.
+>
+> ℹ️ Adding a network is an `INSERT`, without schema migration. The icons must exist in an installed Iconify collection (`@iconify-json/simple-icons` for the brands, `lucide` is already installed).
 
 ---
 

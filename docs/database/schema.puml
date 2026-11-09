@@ -104,8 +104,8 @@ package "People" #DDE8F8 {
         **idSocialLink** : integer <<PK>>
         --
         idUser : integer <<FK>>
-        kind : text  // website | github | gitlab | linkedin | youtube | discord | instagram | x | artstation | behance | tryhackme
-        url : text
+        kind : text <<FK>>  // not certificate
+        url : text  // checked against link_kinds.url_pattern
         label : text <<nullable>>  // tells apart two links of the same kind
         position : integer
     }
@@ -129,8 +129,8 @@ package "People" #DDE8F8 {
         **idExperienceLink** : integer <<PK>>
         --
         idExperience : integer <<FK>>
-        kind : text  // social_links kinds + certificate
-        url : text
+        kind : text <<FK>>
+        url : text  // checked against link_kinds.url_pattern
         label : text <<nullable>>
         position : integer
     }
@@ -199,6 +199,12 @@ package "Catalog" #DDE8F8 {
         icon : text <<nullable>>  // e.g. i-simple-icons-python
     }
 
+    entity link_kinds {
+        **kind** : text <<PK>>  // e.g. github, youtube, certificate
+        --
+        url_pattern : text  // PostgreSQL regex
+        icon : text
+    }
 }
 
 package "Files" #DDE8F8 {
@@ -224,6 +230,9 @@ users "1" *-- "0..*" social_links
 users "1" *-- "0..*" experiences
 experiences "1" *-- "0..*" experience_links
 
+' Reference: the kind of a link (ON DELETE RESTRICT).
+link_kinds "1" -- "0..*" social_links : kind
+link_kinds "1" -- "0..*" experience_links : kind
 
 ' Aggregation: optional link, the media survives (ON DELETE SET NULL).
 users "0..1" o-- "0..*" media : owner
