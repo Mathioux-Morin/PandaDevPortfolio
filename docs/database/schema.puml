@@ -93,7 +93,7 @@ package "People" #DDE8F8 {
         updated_at : timestamptz
     }
 
-    entity profile_media {
+    entity attaches {
         **idUser** : integer <<PK, FK>>
         **idMedia** : uuid <<PK, FK>>
         --
@@ -125,9 +125,9 @@ package "People" #DDE8F8 {
         end_on : date <<nullable>>
     }
 
-    entity user_technologies {
+    entity masters {
         **idUser** : integer <<PK, FK>>
-        **idTechnology** : integer <<PK, FK>>
+        **idSkill** : integer <<PK, FK>>
         --
         score : smallint  // CHECK 0..100
         level : text <<generated>>  // from score
@@ -154,7 +154,7 @@ package "Projects" #DDE8F8 {
         updated_at : timestamptz
     }
 
-    entity project_members {
+    entity works_on {
         **idProject** : integer <<PK, FK>>
         **idUser** : integer <<PK, FK>>
         --
@@ -162,22 +162,22 @@ package "Projects" #DDE8F8 {
         role : L10n <<nullable>>  // e.g. back-end, database
     }
 
-    entity project_media {
+    entity shows {
         **idProject** : integer <<PK, FK>>
         **idMedia** : uuid <<PK, FK>>
         --
         position : integer
     }
 
-    entity project_technologies {
+    entity uses {
         **idProject** : integer <<PK, FK>>
-        **idTechnology** : integer <<PK, FK>>
+        **idSkill** : integer <<PK, FK>>
     }
 }
 
 package "Catalog" #DDE8F8 {
-    entity technologies {
-        **idTechnology** : integer <<PK>>
+    entity skills {
+        **idSkill** : integer <<PK>>
         --
         name : text <<unique>>
         category : text  // language | framework | database | tool | ai
@@ -213,13 +213,13 @@ media "0..1" --o "0..1" projects : cover
 
 ' Many-to-many associations, carried by an association table.
 profiles "0..*" -- "0..3" media : avatar, CV (fr, en)
-(profiles, media) .. profile_media
-users "0..*" -- "0..*" technologies
-(users, technologies) .. user_technologies
+(profiles, media) .. attaches
+users "0..*" -- "0..*" skills
+(users, skills) .. masters
 users "1..*" -- "0..*" projects : member
-(users, projects) .. project_members
-technologies "0..*" -- "0..*" projects
-(technologies, projects) .. project_technologies
+(users, projects) .. works_on
+skills "0..*" -- "0..*" projects
+(skills, projects) .. uses
 media "0..*" -- "0..*" projects : gallery
-(media, projects) .. project_media
+(media, projects) .. shows
 @enduml

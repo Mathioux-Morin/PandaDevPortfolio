@@ -63,11 +63,11 @@ Public profile of a user. One profile at most per user.
 >
 > ℹ️ The contact form sends the message by email to `contact_email`, with the visitor's address as reply-to. The message is never stored in the database (see [Not stored in the database](#not-stored-in-the-database)). Turning the form off hides neither `contact_email` nor `contact_phone`.
 >
-> ℹ️ The profile picture and the CVs are linked through [`profile_media`](#association-table-profile_media).
+> ℹ️ The profile picture and the CVs are linked through [`attaches`](#association-table-attaches).
 
 ---
 
-## Association table: `profile_media`
+## Association table: `attaches`
 
 Files used by a profile: profile picture and CVs. One file at most per kind.
 
@@ -122,19 +122,19 @@ Background of a user: professional career, education and personal training.
 
 ---
 
-## Association table: `user_technologies`
+## Association table: `masters`
 
-Technologies mastered by a user, with a self-assessed score.
+Skills mastered by a user, with a self-assessed score.
 
-| Field          | Type       | Constraint                                              | Required | Description                            |
-|----------------|------------|---------------------------------------------------------|----------|----------------------------------------|
-| `idUser`       | `integer`  | PK, FK → `users.idUser`, ON DELETE CASCADE              | ✅       | Person concerned                       |
-| `idTechnology` | `integer`  | PK, FK → `technologies.idTechnology`, ON DELETE CASCADE | ✅       | Mastered technology                    |
-| `score`        | `smallint` | CHECK (`score BETWEEN 0 AND 100`)                       | ✅       | Proficiency score from 0 to 100        |
-| `level`        | `text`     | GENERATED ALWAYS AS (...) STORED                        | ✅       | Level computed from `score`, read only |
-| `position`     | `integer`  | DEFAULT `0`                                             | ✅       | Display order on the profile           |
+| Field      | Type       | Constraint                                   | Required | Description                            |
+|------------|------------|----------------------------------------------|----------|----------------------------------------|
+| `idUser`   | `integer`  | PK, FK → `users.idUser`, ON DELETE CASCADE   | ✅       | Person concerned                       |
+| `idSkill`  | `integer`  | PK, FK → `skills.idSkill`, ON DELETE CASCADE | ✅       | Mastered skill                         |
+| `score`    | `smallint` | CHECK (`score BETWEEN 0 AND 100`)            | ✅       | Proficiency score from 0 to 100        |
+| `level`    | `text`     | GENERATED ALWAYS AS (...) STORED             | ✅       | Level computed from `score`, read only |
+| `position` | `integer`  | DEFAULT `0`                                  | ✅       | Display order on the profile           |
 
-> ℹ️ The composite primary key `(idUser, idTechnology)` allows one score per technology and per user.
+> ℹ️ The composite primary key `(idUser, idSkill)` allows one score per skill and per user.
 >
 > ℹ️ `level` is computed by PostgreSQL, the API and the admin page cannot write it:
 >
@@ -147,18 +147,18 @@ Technologies mastered by a user, with a self-assessed score.
 
 ---
 
-## Table: `technologies`
+## Table: `skills`
 
-Shared catalog of technologies, used by both the profiles (`user_technologies`) and the projects (`project_technologies`).
+Shared catalog of skills, used by both the profiles (`masters`) and the projects (`uses`).
 
-| Field          | Type      | Constraint         | Required | Description                                              |
-|----------------|-----------|--------------------|----------|----------------------------------------------------------|
-| `idTechnology` | `integer` | PK, IDENTITY       | ✅       | Unique identifier                                        |
-| `name`         | `text`    | UNIQUE             | ✅       | Name, e.g. `Python`, `Nuxt`, `PostgreSQL`, `Claude Code` |
-| `category`     | `text`    | CHECK (enumerated) | ✅       | `language`, `framework`, `database`, `tool` or `ai`      |
-| `icon`         | `text`    | —                  | ❌       | Iconify icon name, e.g. `i-simple-icons-python`          |
+| Field      | Type      | Constraint         | Required | Description                                              |
+|------------|-----------|--------------------|----------|----------------------------------------------------------|
+| `idSkill`  | `integer` | PK, IDENTITY       | ✅       | Unique identifier                                        |
+| `name`     | `text`    | UNIQUE             | ✅       | Name, e.g. `Python`, `Nuxt`, `PostgreSQL`, `Claude Code` |
+| `category` | `text`    | CHECK (enumerated) | ✅       | `language`, `framework`, `database`, `tool` or `ai`      |
+| `icon`     | `text`    | —                  | ❌       | Iconify icon name, e.g. `i-simple-icons-python`          |
 
-> ℹ️ `category` lets the website group the technologies and show AI tools apart from languages and frameworks.
+> ℹ️ `category` lets the website group the skills and show AI tools apart from languages and frameworks.
 
 ---
 
@@ -185,7 +185,7 @@ Projects shown on the portfolio.
 
 ---
 
-## Association table: `project_members`
+## Association table: `works_on`
 
 Authors of a project, with the role of each one. A project can have several authors. A co-author is first invited, and only becomes a member once they accept.
 
@@ -203,23 +203,23 @@ Authors of a project, with the role of each one. A project can have several auth
 > ℹ️ A project always keeps at least one `accepted` member. Three rules ensure it:
 >
 > - `ON DELETE RESTRICT` on `idUser`: an account cannot be deleted while it is a member of a project, or has a pending invitation (delete its invitations first);
-> - a deferred constraint trigger (`DEFERRABLE INITIALLY DEFERRED`), checked at the end of the transaction, after a delete or update on `project_members` and after an insert on `projects`: it raises an error if a project still exists without any `accepted` member. Being deferred, it lets a whole project be deleted (its members go with it) and lets a project be created then given its creator in the same transaction;
+> - a deferred constraint trigger (`DEFERRABLE INITIALLY DEFERRED`), checked at the end of the transaction, after a delete or update on `works_on` and after an insert on `projects`: it raises an error if a project still exists without any `accepted` member. Being deferred, it lets a whole project be deleted (its members go with it) and lets a project be created then given its creator in the same transaction;
 > - the API refuses to remove the last member of a project, with a translated error message, before the database is reached.
 
 ---
 
-## Association table: `project_technologies`
+## Association table: `uses`
 
-Technologies used by a project.
+Skills used by a project.
 
-| Field          | Type      | Constraint                                              | Required | Description     |
-|----------------|-----------|---------------------------------------------------------|----------|-----------------|
-| `idProject`    | `integer` | PK, FK → `projects.idProject`, ON DELETE CASCADE        | ✅       | Project         |
-| `idTechnology` | `integer` | PK, FK → `technologies.idTechnology`, ON DELETE CASCADE | ✅       | Technology used |
+| Field       | Type      | Constraint                                       | Required | Description |
+|-------------|-----------|--------------------------------------------------|----------|-------------|
+| `idProject` | `integer` | PK, FK → `projects.idProject`, ON DELETE CASCADE | ✅       | Project     |
+| `idSkill`   | `integer` | PK, FK → `skills.idSkill`, ON DELETE CASCADE     | ✅       | Skill used  |
 
 ---
 
-## Association table: `project_media`
+## Association table: `shows`
 
 Image gallery of a project.
 
