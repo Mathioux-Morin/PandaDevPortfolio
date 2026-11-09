@@ -121,11 +121,19 @@ package "People" #DDE8F8 {
         contract_type : text <<nullable>>  // work only: permanent | fixed_term | apprenticeship | internship | temporary | freelance
         description : L10n
         location : text <<nullable>>
-        url : text <<nullable>>  // certificate or profile
         start_on : date
         end_on : date <<nullable>>
     }
 
+    entity experience_links {
+        **idExperienceLink** : integer <<PK>>
+        --
+        idExperience : integer <<FK>>
+        kind : text  // social_links kinds + certificate
+        url : text
+        label : text <<nullable>>
+        position : integer
+    }
 
     entity involves {
         **idExperience** : integer <<PK, FK>>
@@ -214,6 +222,7 @@ package "Files" #DDE8F8 {
 users "1" *-- "0..1" profiles
 users "1" *-- "0..*" social_links
 users "1" *-- "0..*" experiences
+experiences "1" *-- "0..*" experience_links
 
 
 ' Aggregation: optional link, the media survives (ON DELETE SET NULL).

@@ -96,7 +96,7 @@ External links of a user, shown on their portfolio. All optional: a user can hav
 | `label`        | `text`    | —                                      | ❌       | Tells apart two links of the same kind, e.g. "Tutorials channel", shown as a tooltip |
 | `position`     | `integer` | DEFAULT `0`                            | ✅       | Display order                                                                        |
 
-> ℹ️ Link kinds: `website`, `github`, `gitlab`, `linkedin`, `youtube`, `discord`, `instagram`, `x`, `artstation`, `behance`, `tryhackme`. A network missing from the list uses `website` with a `label`.
+> ℹ️ Link kinds, shared with [`experience_links`](#table-experience_links): `website`, `github`, `gitlab`, `linkedin`, `youtube`, `discord`, `instagram`, `x`, `artstation`, `behance`, `tryhackme`. A network missing from the list uses `website` with a `label`.
 
 ---
 
@@ -115,13 +115,31 @@ Background of a user: professional career, education and personal training.
 | `contract_type`     | `text`    | CHECK (enumerated), `work` only        | ❌       | `permanent` (CDI), `fixed_term` (CDD), `apprenticeship` (alternance), `internship` (stage), `temporary` (intérim) or `freelance` |
 | `description`       | `L10n`    | —                                      | ✅       | Missions, results (Markdown)                                                                                                     |
 | `location`          | `text`    | —                                      | ❌       | City, `NULL` for online training                                                                                                 |
-| `url`               | `text`    | —                                      | ❌       | Link to a certificate or a public profile (e.g. TryHackMe)                                                                       |
 | `start_on`          | `date`    | —                                      | ✅       | Start date                                                                                                                       |
 | `end_on`            | `date`    | CHECK (`end_on >= start_on`)           | ❌       | End date, `NULL` = ongoing                                                                                                       |
 
 > ℹ️ A single table for the three kinds: they share the same columns, and the timeline sorts the whole background with one query. The portfolio shows one section per `kind`.
 >
 > ℹ️ `employment_status` and `contract_type` only apply to `work`: `CHECK (kind = 'work' OR (employment_status IS NULL AND contract_type IS NULL))` rejects them for `education` and `training`. Both stay optional for `work`, and the website shows them as badges.
+>
+> ℹ️ The links of an experience (company website, YouTube channel, certificate…) are in [`experience_links`](#table-experience_links).
+
+---
+
+## Table: `experience_links`
+
+Links of an experience, e.g. the website or YouTube channel of a company, the TryHackMe website, a certificate. All optional, several per kind allowed.
+
+| Field              | Type      | Constraint                                         | Required | Description                                                                              |
+|--------------------|-----------|----------------------------------------------------|----------|------------------------------------------------------------------------------------------|
+| `idExperienceLink` | `integer` | PK, IDENTITY                                       | ✅       | Unique identifier                                                                        |
+| `idExperience`     | `integer` | FK → `experiences.idExperience`, ON DELETE CASCADE | ✅       | Experience concerned                                                                     |
+| `kind`             | `text`    | CHECK (enumerated)                                 | ✅       | Same kinds as [`social_links`](#table-social_links), plus `certificate` (picks the icon) |
+| `url`              | `text`    | —                                                  | ✅       | Link target                                                                              |
+| `label`            | `text`    | —                                                  | ❌       | Tells apart two links of the same kind, shown as a tooltip                               |
+| `position`         | `integer` | DEFAULT `0`                                        | ✅       | Display order                                                                            |
+
+> ℹ️ Kept apart from `social_links`: a company channel is not a link of the member, and the links of an experience are deleted with it.
 
 ---
 
