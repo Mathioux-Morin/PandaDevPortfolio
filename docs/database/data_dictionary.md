@@ -85,15 +85,18 @@ Files used by a profile: profile picture and CVs. One file at most per kind.
 
 ## Table: `social_links`
 
-External links of a user. All optional: a user can have no link at all, and one link at most per kind.
+External links of a user, shown on their portfolio. All optional: a user can have no link at all, or several links of the same kind (e.g. two YouTube channels).
 
-| Field          | Type      | Constraint                                    | Required | Description                                                   |
-|----------------|-----------|-----------------------------------------------|----------|---------------------------------------------------------------|
-| `idSocialLink` | `integer` | PK, IDENTITY                                  | ✅       | Unique identifier                                             |
-| `idUser`       | `integer` | FK → `users.idUser`, ON DELETE CASCADE        | ✅       | Owner of the link                                             |
-| `kind`         | `text`    | CHECK (enumerated), UNIQUE (`idUser`, `kind`) | ✅       | `github`, `discord`, `youtube` or `linkedin` (picks the icon) |
-| `url`          | `text`    | —                                             | ✅       | Link target                                                   |
-| `position`     | `integer` | DEFAULT `0`                                   | ✅       | Display order                                                 |
+| Field          | Type      | Constraint                             | Required | Description                                                                          |
+|----------------|-----------|----------------------------------------|----------|--------------------------------------------------------------------------------------|
+| `idSocialLink` | `integer` | PK, IDENTITY                           | ✅       | Unique identifier                                                                    |
+| `idUser`       | `integer` | FK → `users.idUser`, ON DELETE CASCADE | ✅       | Owner of the link                                                                    |
+| `kind`         | `text`    | CHECK (enumerated)                     | ✅       | Picks the icon, see the list below                                                   |
+| `url`          | `text`    | —                                      | ✅       | Link target                                                                          |
+| `label`        | `text`    | —                                      | ❌       | Tells apart two links of the same kind, e.g. "Tutorials channel", shown as a tooltip |
+| `position`     | `integer` | DEFAULT `0`                            | ✅       | Display order                                                                        |
+
+> ℹ️ Link kinds: `website`, `github`, `gitlab`, `linkedin`, `youtube`, `discord`, `instagram`, `x`, `artstation`, `behance`, `tryhackme`. A network missing from the list uses `website` with a `label`.
 
 ---
 

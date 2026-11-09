@@ -104,8 +104,9 @@ package "People" #DDE8F8 {
         **idSocialLink** : integer <<PK>>
         --
         idUser : integer <<FK>>
-        kind : text  // github | discord | youtube | linkedin
+        kind : text  // website | github | gitlab | linkedin | youtube | discord | instagram | x | artstation | behance | tryhackme
         url : text
+        label : text <<nullable>>  // tells apart two links of the same kind
         position : integer
     }
 
@@ -124,6 +125,7 @@ package "People" #DDE8F8 {
         start_on : date
         end_on : date <<nullable>>
     }
+
 
     entity involves {
         **idExperience** : integer <<PK, FK>>
@@ -188,6 +190,7 @@ package "Catalog" #DDE8F8 {
         category : text  // language | framework | database | tool | ai | domain | method | design | art | soft_skill
         icon : text <<nullable>>  // e.g. i-simple-icons-python
     }
+
 }
 
 package "Files" #DDE8F8 {
@@ -211,6 +214,7 @@ package "Files" #DDE8F8 {
 users "1" *-- "0..1" profiles
 users "1" *-- "0..*" social_links
 users "1" *-- "0..*" experiences
+
 
 ' Aggregation: optional link, the media survives (ON DELETE SET NULL).
 users "0..1" o-- "0..*" media : owner
