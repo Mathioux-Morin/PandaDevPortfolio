@@ -180,7 +180,7 @@ Les fichiers sont nommés d'après le slug, qui est unique : deux homonymes ne p
 
 Prix relevés le 9 novembre 2026, à revérifier au moment de commander.
 
-**Serveur (VPS)**
+#### Serveur (VPS)
 
 | Critère    | OVHcloud VPS-1                                                                                                                                       | Infomaniak VPS Lite                                                                                                 |
 |------------|------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------|
@@ -189,7 +189,7 @@ Prix relevés le 9 novembre 2026, à revérifier au moment de commander.
 | Pour       | Le moins cher ; hébergé en France, sous droit français et européen (RGPD) ; sauvegarde quotidienne des dernières 24 heures incluse                   | Disponible à la commande ; plus d'espace disque ; hébergeur indépendant, réputé pour le respect de la vie privée    |
 | Contre     | En rupture de stock en novembre 2026, sans date de retour ; une procédure judiciaire canadienne (depuis 2024) réclame des données stockées en France | Droit suisse (nLPD), reconnu équivalent au RGPD mais hors UE ; ni snapshot ni garantie de disponibilité ; plus cher |
 
-**Nom de domaine et e-mail, pour deux boîtes (une par membre)**
+#### Nom de domaine et e-mail, pour deux boîtes (une par membre)
 
 | Critère          | OVHcloud                                                                           | Infomaniak                                                                     |
 |------------------|------------------------------------------------------------------------------------|--------------------------------------------------------------------------------|

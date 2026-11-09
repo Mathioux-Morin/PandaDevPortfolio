@@ -180,7 +180,7 @@ Files are named after the slug, which is unique, so two people with the same nam
 
 Prices checked on 9 November 2026, to be checked again when ordering.
 
-**Server (VPS)**
+#### Server (VPS)
 
 | Criterion | OVHcloud VPS-1                                                                                                        | Infomaniak VPS Lite                                                                                                              |
 |-----------|-----------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------|
@@ -189,7 +189,7 @@ Prices checked on 9 November 2026, to be checked again when ordering.
 | Pros      | The cheapest; hosted in France, under French and EU law (GDPR); daily backup of the last 24 hours included            | Available to order; more disk space; independent host, known for respecting privacy                                              |
 | Cons      | Out of stock in November 2026, with no restock date; a Canadian court case (since 2024) demands data stored in France | Swiss law (nFADP), recognised as equivalent to the GDPR but outside the EU; no snapshots and no uptime guarantee; more expensive |
 
-**Domain name and email, for two mailboxes (one per member)**
+#### Domain name and email, for two mailboxes (one per member)
 
 | Criterion         | OVHcloud                                                                                         | Infomaniak                                                                          |
 |-------------------|--------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------|
